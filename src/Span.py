@@ -1,7 +1,7 @@
 BOARD_SIZE = (20, 19)
 STARTING_LOCATION_1 = (8,8)
 STARTING_LOCATION_2 = (2,2)
-STEPS = 400
+STEPS = 40
 UP = 0
 RIGHT = 1
 DOWN = 2
@@ -115,6 +115,7 @@ class cell(object):
         self._ant_ID = EMPTY
         self._fringe = EMPTY
         self._pointer = 0
+        self._compass = 0
         
     def set_obstacle(self):
         self._arr_stack = [OBSTACLE]
@@ -122,13 +123,26 @@ class cell(object):
         self._ant_ID = OBSTACLE
         self._fringe = OBSTACLE
     
-    def set_cell(self, arr_stack, ant_sym, ant_ID, fringe, pointer):
+    def set_cell(self, arr_stack, ant_sym, ant_ID, fringe, pointer, compass):
         self._arr_stack = [arr_stack]
         self._ant_sym = ant_sym
         self._ant_ID = ant_ID
         self._fringe = fringe
         self._pointer = pointer
+        self._compass = compass
     
+    def get_compass(self):
+        return self._compass
+    
+    def set_compass(self, compass):
+        self._compass = compass    
+    
+    def inc_compass(self):
+        self._compass+=1
+    
+    def dec_compass(self):
+        self._compass-=1
+        
     def get_pointer(self):
         return self._pointer
     
@@ -192,7 +206,7 @@ def init_grid():
     return grid
     
 def place_ant_on_grid(grid, ant, location):
-    grid[location].set_cell(START, ANT, ant.get_symbol(), EMPTY, 0)    
+    grid[location].set_cell(START, ANT, ant.get_symbol(), EMPTY, 0, 0)    
      
 def print_radius(ant):
     radius = ant.get_radius()
@@ -237,7 +251,7 @@ def move(grid, ant, side, pheromones):
     if pheromones[0] == EMPTY:
         grid[new_location].set_ant_sym(ANT)
     else:
-        grid[new_location].set_cell(pheromones[0], ANT, symbol, pheromones[1], 0)
+        grid[new_location].set_cell(pheromones[0], ANT, symbol, pheromones[1], 0, 0)
     
 # Backtracking         
 def follow_arrow (grid, ant):
@@ -371,6 +385,7 @@ def step(grid, ant):
             follow_arrow(grid, ant)
     if ant.get_bfs()==SEARCH:
         ant_pheromone = is_pal_in_radius(grid, ant)
+        direction = grid[ant.get_location()].get_compass()
         if ant_pheromone != 0:  
 #            print "FOUND PHEROMONE :",ant_pheromone
             if ant.get_ID() > int(grid[ant_pheromone[0]].get_ant_ID()):
@@ -388,27 +403,43 @@ def step(grid, ant):
             old_location = grid[ant.get_location()]
             follow_arrow(grid, ant)
             old_location.set_obstacle()
-        elif is_empty(grid, ant, RIGHT):
-            move(grid, ant, RIGHT, [get_back_pheromone(ant, RIGHT),EMPTY])
+        elif is_empty(grid, ant, direction):            
+            grid[ant.get_location()].set_compass(direction+1%4)
+            print "now direction is ",grid[ant.get_location()].get_compass() 
+            grid[ant.get_location()].set_fringe(get_back_pheromone(ant, direction+2%4))
+            print "now direction is ",direction
+            move(grid, ant, direction, [get_back_pheromone(ant, direction),EMPTY])
             ant.set_bfs(BACKTRACK)
-        elif is_empty(grid, ant, DOWN):
-            move(grid, ant, DOWN, [get_back_pheromone(ant, DOWN),EMPTY])
-            ant.set_bfs(BACKTRACK)
-        elif is_empty(grid, ant, LEFT):
-            move(grid, ant, LEFT, [get_back_pheromone(ant, LEFT),EMPTY])
-            ant.set_bfs(BACKTRACK)
-        elif is_empty(grid, ant, UP):
-            move(grid, ant, UP, [get_back_pheromone(ant, UP),EMPTY])
-            ant.set_bfs(BACKTRACK)
+#        elif is_empty(grid, ant, RIGHT):
+#            grid[ant.get_location()].set_compass(DOWN)
+#            grid[ant.get_location()].set_fringe(get_back_pheromone(ant, LEFT))
+#            move(grid, ant, RIGHT, [get_back_pheromone(ant, RIGHT),EMPTY])
+#            ant.set_bfs(BACKTRACK)
+#        elif is_empty(grid, ant, DOWN):
+#            grid[ant.get_location()].set_compass(LEFT)
+#            grid[ant.get_location()].set_fringe(get_back_pheromone(ant, UP))
+#            move(grid, ant, DOWN, [get_back_pheromone(ant, DOWN),EMPTY])
+#            ant.set_bfs(BACKTRACK)
+#        elif is_empty(grid, ant, LEFT):
+#            grid[ant.get_location()].set_compass(UP)
+#            grid[ant.get_location()].set_fringe(get_back_pheromone(ant, RIGHT))
+#            move(grid, ant, LEFT, [get_back_pheromone(ant, LEFT),EMPTY])
+#            ant.set_bfs(BACKTRACK)
+#        elif is_empty(grid, ant, UP):
+#            grid[ant.get_location()].set_compass(RIGHT)
+#            grid[ant.get_location()].set_fringe(get_back_pheromone(ant, DOWN))
+#            move(grid, ant, UP, [get_back_pheromone(ant, UP),EMPTY])
+#            ant.set_bfs(BACKTRACK)
         elif is_pheromone_in_side(grid, ant, RIGHT, get_back_pheromone(ant, RIGHT), PHER_ARROW):
-            move(grid, ant, RIGHT, [get_back_pheromone(ant, RIGHT),EMPTY])
+            move(grid, ant, RIGHT, [get_back_pheromone(ant, RIGHT),get_back_pheromone(ant, LEFT)])
         elif is_pheromone_in_side(grid, ant, LEFT, get_back_pheromone(ant, LEFT), PHER_ARROW):
-            move(grid, ant, LEFT, [get_back_pheromone(ant, LEFT),EMPTY])
+            move(grid, ant, LEFT, [get_back_pheromone(ant, LEFT),get_back_pheromone(ant, RIGHT)])
         elif is_pheromone_in_side(grid, ant, UP, get_back_pheromone(ant, UP), PHER_ARROW):
-            move(grid, ant, UP, [get_back_pheromone(ant, UP),EMPTY])
+            move(grid, ant, UP, [get_back_pheromone(ant, UP),get_back_pheromone(ant, DOWN)])
     elif ant.get_bfs()==BACKTRACK:
         if grid[ant.get_location()].peek_arr_stack()==START:
             ant.set_bfs(SEARCH)
+            
         else:
             follow_arrow(grid, ant)
             
@@ -458,10 +489,10 @@ for i in range(1,STEPS):
     if (step(grid, ant_1) == 1):
         print "MEETING!"
         break
-    if (step(grid, ant_2) == 1):
-        print "MEETING!"
-        break
-    
+#    if (step(grid, ant_2) == 1):
+#        print "MEETING!"
+#        break
+#    
     print_grid(grid)
 else:
     print "NO MEETING!"
