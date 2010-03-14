@@ -5,6 +5,7 @@
 import Final
 import MustMeet
 import antfsm
+import cPickle
 from render_to_pdf import *
 
 class Run(object):
@@ -393,7 +394,7 @@ slides = [
     #('GOA_Steps', goa_steps, {'num_in_row':4, 'with_numbering':False}),
 ]
 
-if __name__ == '__main__':
+def create_pdf_slides(slides):
     STEPS = 680
     for filename, slide, config in slides:
         canvases = []
@@ -411,3 +412,21 @@ if __name__ == '__main__':
         create_pdf(filename, canvases,
             num_in_row = config.get('num_in_row', 5), with_numbering = config.get('with_numbering', True))
 
+
+def multirun():
+    from cache import Cached
+    cache = Cached('runs.sqlite')
+    from grid_generators import grid_makers
+    n = 10
+    size = (20, 20)
+    grids = sum([cache.cached(f, n, params=dict(size=size)) for f in grid_makers], [])
+    steps = 37
+    output_pyx = 'temp_output.pyx'
+    run = COARun(output_pyx)
+    for map in maps:
+        run.set_map(map)
+        run.run(steps)
+
+if __name__ == '__main__':
+    #create_pdf_slides(slides)
+    pass

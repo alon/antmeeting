@@ -1,6 +1,5 @@
 import time
 from base import Grid, Ant
-from pyx import *
 
 # Parameters
 #BOARD_SIZE = (20, 19)

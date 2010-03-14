@@ -3,7 +3,6 @@
 #from constants import *
 import time
 from base import Grid, Ant
-from pyx import *
 
 # Parameters
 STEPS = 680

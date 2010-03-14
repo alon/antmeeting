@@ -1,4 +1,3 @@
-from pyx import *
 
 class Grid(object):
 
@@ -54,7 +53,10 @@ class Grid(object):
             c.stroke(path.line(px - lw*dx/2, py, px + s*dx, py), [slw])
             c.stroke(path.line(px, py - lw*dy/2, px, py + s*dy), [slw])
 
-
+    def set_obstacles(self, obst_iter):
+        for x, y in obst_iter:
+            self[x, y].set_obstacle()
+            
 
 class Ant(object):
     def print_radius(ant):
