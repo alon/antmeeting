@@ -4,6 +4,16 @@
 import time
 from base import Grid, Ant
 
+class color(object):
+    def __init__(self, r, g, b):
+        self.r = r
+        self.g = g
+        self.b = b
+
+    @staticmethod
+    def rgb(r, g, b):
+        return color(r, g, b)
+
 # Parameters
 STEPS = 680
 
@@ -116,15 +126,24 @@ class GOAAnt(Ant):
 
 class cell(object):
     def __init__(self, board):
+        self.set_empty()
+        self.board = board
+
+    def __str__(self):
+        return self.string_cell()
+
+    def is_empty(self):
+        return self._ant_sym != OBSTACLE
+
+    def is_obstacle(self):
+        return self._ant_sym == OBSTACLE
+
+    def set_empty(self):
         self._back_arrow = EMPTY
         self._ant_sym = EMPTY
         self._ant_ID = EMPTY
         self._for_arrow = EMPTY
         self._direction = 0
-        self.board = board
-        
-    def __str__(self):
-        return self.string_cell()
 
     def set_obstacle(self):
         self._back_arrow = OBSTACLE
@@ -187,7 +206,7 @@ class cell(object):
     
     def string_cell(self):
         return "".join((self._back_arrow, self._ant_sym, self._ant_ID, self._for_arrow))
-    
+
 
 class GOAGrid(Grid):
     def __init__(self, board_size):

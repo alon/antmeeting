@@ -2,10 +2,12 @@
 
 #from Final import GOAGrid, GOAAnt
 #from MustMeet import COAAnt, COAGrid
+import cPickle
+import random
+
 import Final
 import MustMeet
 import antfsm
-import cPickle
 from render_to_pdf import *
 
 class Run(object):
@@ -20,18 +22,25 @@ class Run(object):
 
     # End Abstracts
 
+    def update_ant_locations(self, ant_locations):
+        ants = self.ants
+        grid = self.grid
+        for i, (ant, location) in enumerate(zip(ants, ant_locations)):
+            ant.set_location(location)
+            grid.place_ant_on_grid(ant, location)
+            #print "ant %s radius:" % (i + 1)
+            #ant.print_radius()
+
     def __init__(self, pyx_output_filename, board_size,
             ant_locations, pyx_steps = [], draw_slide_title=False):
         # create board, place walls and ants
         self.grid = self.make_grid(board_size=board_size)
+        self.board_size = board_size
         self._draw_slide_title = draw_slide_title
         grid = self.grid
         #grid.create_walls()
         ants = self.ants = self.make_ants(ant_locations)
-        for i, (ant, location) in enumerate(zip(ants, ant_locations)):
-            grid.place_ant_on_grid(ant, location)
-            print "ant %s radius:" % (i + 1)
-            ant.print_radius()
+        self.update_ant_locations(ant_locations)
         # initialize pyx variables
         self.pyx_output_filename = pyx_output_filename
         self.pyx_steps = set(pyx_steps)
@@ -60,11 +69,23 @@ class Run(object):
         else:
             print "NO MEETING!"
             i = steps
-        grid.display(pyx_renderer=pyx_renderer, step_num = i)
+        #grid.display(pyx_renderer=pyx_renderer, step_num = i)
+        grid.display()
         #pyx_renderer.create_pdf() # actually create the output pdf
         self.canvases = pyx_renderer.canvases
 
 class ObstacleRun(Run):
+
+    def set_map(self, grid):
+        self.grid = self.make_grid(self.board_size)
+        self.grid.ants = self.ants
+        for l_num, l in enumerate(grid):
+            for x, c in enumerate(l):
+                if c == '*':
+                    self.grid[l_num+1, x+1].set_obstacle()
+                else:
+                    self.grid[l_num+1, x+1].set_empty()
+
     def __init__(self, pyx_output_filename, board_size, ant_locations=[],
         obstacles = [], pyx_steps=[], draw_slide_title=False):
         obstacles_is_a_map = len(obstacles) > 0 and obstacles[0][0] in ' *'
@@ -84,10 +105,7 @@ class ObstacleRun(Run):
             ant_locations=ant_locations, pyx_steps=pyx_steps, draw_slide_title=draw_slide_title)
         grid = self.grid
         if obstacles_is_a_map:
-            for l_num, l in enumerate(obstacles):
-                for x, c in enumerate(l):
-                    if c == '*':
-                        grid[l_num+1, x+1].set_obstacle()
+            self.set_map(obstacles)
         else:
             for obst in obstacles:
                 grid.create_obstacle(*obst)
@@ -376,7 +394,7 @@ goa_steps = [
         (GOARun, 'GOA_no_obstacles', dict(
             steps = 14,
             draw_slide_title = True,
-            pyx_steps = range(14),
+            #pyx_steps = range(14),
             board_size = (4,  4), # number of rows (y) - 1, number of cols (x) - 1
             ant_locations = [(2, 2)]
             ))
@@ -389,9 +407,9 @@ slides = [
 
     # Slides used for second version of article:
 
-    ('noa_vs_coa', noa_vs_coa + coa_vs_goa[:2], {'num_in_row':2}),
+    #('noa_vs_coa', noa_vs_coa + coa_vs_goa[:2], {'num_in_row':2}),
     #('coa_vs_goa', coa_vs_goa[4:] + coa_vs_goa[2:4], {'num_in_row':2}),
-    #('GOA_Steps', goa_steps, {'num_in_row':4, 'with_numbering':False}),
+    ('GOA_Steps', goa_steps, {'num_in_row':4, 'with_numbering':False}),
 ]
 
 def create_pdf_slides(slides):
@@ -412,21 +430,40 @@ def create_pdf_slides(slides):
         create_pdf(filename, canvases,
             num_in_row = config.get('num_in_row', 5), with_numbering = config.get('with_numbering', True))
 
+def randpoint(size):
+    return map(lambda x: random.randint(2, x-3), size)
+
+def randants(run):
+    grid = run.grid
+    ants = run.ants
+    locs = [randpoint(grid.size) for x in xrange(len(ants))]
+    def is_obst((x, y)):
+        return grid.grid[x][y].is_obstacle()
+    while any(map(is_obst, locs)):
+        locs = [randpoint(grid.size) for x in xrange(len(ants))]
+    run.update_ant_locations(locs)
+    print locs
 
 def multirun():
-    from cache import Cached
-    cache = Cached('runs.sqlite')
+    from cache import Cacher
+    cache = Cacher('runs.sqlite')
     from grid_generators import grid_makers
-    n = 10
-    size = (20, 20)
-    grids = sum([cache.cached(f, n, params=dict(size=size)) for f in grid_makers], [])
-    steps = 37
+    grid_makers = grid_makers[:1]
+    n = 1
+    size = (7, 7)
+    params = dict(size=size, p_empty=0.9)
+    grids = sum([[f(**params) for x in xrange(n)] for f in grid_makers], [])
+    #grids = sum([cache.cached1(f, n, params=params)
+    #                             for f in grid_makers], [])
+    steps = 5
     output_pyx = 'temp_output.pyx'
-    run = COARun(output_pyx)
-    for map in maps:
+    run = GOARun(output_pyx, board_size=size, ant_locations=[(1,1), (3,3)])
+    for map in grids:
         run.set_map(map)
+        randants(run)
         run.run(steps)
 
 if __name__ == '__main__':
     #create_pdf_slides(slides)
-    pass
+    multirun()
+

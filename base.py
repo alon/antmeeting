@@ -1,4 +1,14 @@
 
+class style(object):
+    @staticmethod
+    def linewidth(width):
+        class LineWidth(object):
+            pass
+        lw = LineWidth()
+        lw.width = width
+        return lw
+
+
 class Grid(object):
 
     def __init__(self, board_size, cell):

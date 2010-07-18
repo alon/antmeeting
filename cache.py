@@ -6,6 +6,7 @@ totuple = lambda r1: (r1,) if not isinstance(r1, tuple) else r1
 class Cacher:
     def __init__(self, filename):
         import sqlite3
+        self._filename = filename
         self._db = sqlite3.connect(filename)
         
     def has_table(self, table_name):
@@ -16,11 +17,14 @@ class Cacher:
             return False
     
     def table(self, table_name):
-        return [tuple(json.loads(x) for x in s) for s in self._db.execute('select * from %s' % table_name).fetchall()]
+        return [tuple(json.loads(x) for x in s)
+            for s in self._db.execute('select * from %s' % table_name).fetchall()]
     
     def insert(self, table_name, values):
         n = len(values[0]) if isinstance(values[0], tuple) else 1 
-        self._db.executemany('insert into %s values (%s)' % (table_name, ','.join(['?']*n)), [tuple(json.dumps(x) for x in t) for t in values])
+        self._db.executemany(
+            'insert into %s values (%s)' % (table_name, ','.join(['?']*n)),
+            [tuple(json.dumps(x) for x in t) for t in values])
     
     def cached(self, f, n, params={}):
         assert(n > 0)
@@ -28,7 +32,9 @@ class Cacher:
         if not self.has_table(table_name):
             r1 = totuple(f(**params))
             arity = len(r1)
-            self._db.execute('create table %s (%s)' % (table_name, ','.join(string.lowercase[:arity])))
+            self._db.execute(
+                'create table %s (%s)' %
+                    (table_name, ','.join(string.lowercase[:arity])))
             self.insert(table_name, [r1])
             self._db.commit()
         results = self.table(table_name)
@@ -40,7 +46,15 @@ class Cacher:
                 new_results.append(totuple(f(**params)))
             self.insert(table_name, new_results)
         self._db.commit()
-        return results + new_results
+        ret = results + new_results
+        assert(len(ret) >= n)
+        if len(ret) < n:
+            print "warning: there are more then %s results already in the cache" % n
+        return ret
+
+    def cached1(self, f, n, params={}):
+        """for functions that return a single argument result, untuple the cache"""
+        return [x[0] for x in self.cached(f, n, params)]
 
 def test():
     import os
