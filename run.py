@@ -32,7 +32,7 @@ class Run(object):
             #ant.print_radius()
 
     def __init__(self, pyx_output_filename, board_size,
-            ant_locations, pyx_steps = [], draw_slide_title=False):
+            ant_locations, render_steps = [], draw_slide_title=False):
         # create board, place walls and ants
         self.grid = self.make_grid(board_size=board_size)
         self.board_size = board_size
@@ -43,25 +43,35 @@ class Run(object):
         self.update_ant_locations(ant_locations)
         # initialize pyx variables
         self.pyx_output_filename = pyx_output_filename
-        self.pyx_steps = set(pyx_steps)
+        self.render_steps = set(render_steps)
 
-    def run(self, steps):
+    def single_step(self):
+        done = False
+        for ant in self.ants:
+            if ant is None: continue
+            if ant.get_state() != self.FOUND_BASE and self.grid.step(ant) == 1:
+                print "MEETING!"
+                done = True
+        return done
+
+    def run(self, steps, renderer=None):
         grid, ants = self.grid, self.ants
         grid.display()
 
+        def pyx_post_step():
+            self.canvases = py_renderer.canvases
+
+        post_step = lambda: None
         FOUND_BASE = self.FOUND_BASE
 
-        pyx_renderer = PyxRenderer(self.pyx_output_filename, draw_slide_title=self._draw_slide_title)
-        done = False
+        if renderer is None:
+            renderer = PyxRenderer(self.pyx_output_filename, draw_slide_title=self._draw_slide_title)
+            post_step = pyx_post_step
         for i in range(steps):
-            if i in self.pyx_steps:
+            if i in self.render_steps:
                 #import pdb; pdb.set_trace()
-                grid.display(pyx_renderer = pyx_renderer, step_num = i)
-            for ant in ants:
-                if ant is None: continue
-                if ant.get_state() != FOUND_BASE and grid.step(ant) == 1:
-                    print "MEETING!"
-                    done = True
+                grid.display(renderer = renderer, step_num = i)
+            done = self.single_step()
             if done:
                 break
             grid.display()
@@ -72,7 +82,7 @@ class Run(object):
         #grid.display(pyx_renderer=pyx_renderer, step_num = i)
         grid.display()
         #pyx_renderer.create_pdf() # actually create the output pdf
-        self.canvases = pyx_renderer.canvases
+        post_step()
 
 class ObstacleRun(Run):
 
@@ -87,7 +97,7 @@ class ObstacleRun(Run):
                     self.grid[l_num+1, x+1].set_empty()
 
     def __init__(self, pyx_output_filename, board_size, ant_locations=[],
-        obstacles = [], pyx_steps=[], draw_slide_title=False):
+        obstacles = [], render_steps=[], draw_slide_title=False):
         obstacles_is_a_map = len(obstacles) > 0 and obstacles[0][0] in ' *'
         if obstacles_is_a_map: # special case, we got a board rep
             ant_locations_d = {}
@@ -102,7 +112,7 @@ class ObstacleRun(Run):
         print ant_locations
 
         Run.__init__(self, pyx_output_filename, board_size=board_size,
-            ant_locations=ant_locations, pyx_steps=pyx_steps, draw_slide_title=draw_slide_title)
+            ant_locations=ant_locations, render_steps=render_steps, draw_slide_title=draw_slide_title)
         grid = self.grid
         if obstacles_is_a_map:
             self.set_map(obstacles)
@@ -202,10 +212,10 @@ import copy
 class NOARun(object):
     # using alon's old fsm, no use to force it to be the same interface as COA and GOA which are very similar
     def __init__(self, pyx_output_filename, board_size, ant_locations=[],
-        obstacles = None, pyx_steps=[]):
+        obstacles = None, render_steps=[]):
         self.fsm = antfsm.make_meet_fsm(board_size, ant_locations, grid=obstacles)
         self.ant_homes = ant_locations
-        self._pyx_steps = pyx_steps
+        self._render_steps = render_steps
         self._pyx_output_filename = pyx_output_filename
 
     def run(self, steps):
@@ -213,7 +223,7 @@ class NOARun(object):
         self._renderer = pyx_renderer = PyxRenderer(self._pyx_output_filename)
         for i in range(steps):
             print "NOA %s" % i
-            if i in self._pyx_steps:
+            if i in self._render_steps:
                 self.record_pdf(i)
             self.fsm.step()
             if self.fsm.getStateRelative(0) == self.fsm.getStateRelative(1):
@@ -324,17 +334,17 @@ goa_example_world = """
 
 noa_runs = [
         (NOARun, 'NOA_no_obstacles', dict(
-            pyx_steps = [0, 50]
+            render_steps = [0, 50]
         )),
         (NOARun, 'NOA_obstacles', dict(
-            pyx_steps = [0, 50],
+            render_steps = [0, 50],
             obstacles = non_convex_world
         )),
 ]
 
 coa_runs = [
         (COARun, 'COA_no_obstacles', dict(
-            pyx_steps = [0, 50]
+            render_steps = [0, 50]
         )),
 ]
 
@@ -360,12 +370,12 @@ noa_meetings = [
 
 noa_vs_coa = [
 #        (NOARun, 'NOA_vs_COA__NOA', dict(
-#            pyx_steps = [0, 50],
+#            render_steps = [0, 50],
 #            obstacles = noa_vs_coa_world
 #        )),
         (COARun, 'NOA_vs_COA__COA', dict(
             obstacles = noa_vs_coa_world,
-            #pyx_steps=[26],
+            #render_steps=[26],
             steps = 50
         )),
 ]
@@ -394,7 +404,7 @@ goa_steps = [
         (GOARun, 'GOA_no_obstacles', dict(
             steps = 14,
             draw_slide_title = True,
-            #pyx_steps = range(14),
+            #render_steps = range(14),
             board_size = (4,  4), # number of rows (y) - 1, number of cols (x) - 1
             ant_locations = [(2, 2)]
             ))

@@ -40,9 +40,9 @@ class Grid(object):
     def has_key(self, k):
         return (0 <= k[0] <= self.size[0]) and (0 <= k[1] <= self.size[1])
 
-    def display(s, pyx_renderer = None, step_num = None):
-        if pyx_renderer:
-            pyx_renderer.render(s, title=str(step_num))
+    def display(s, renderer = None, step_num = None):
+        if renderer:
+            renderer.render(s, title=str(step_num))
         for i in range(0, s.size[0]+1):
             for j in range(0, s.size[1]+1):
                 print s[i,j],
@@ -67,6 +67,11 @@ class Grid(object):
         for x, y in obst_iter:
             self[x, y].set_obstacle()
             
+    def get_ant_locations(self):
+        return [tuple(self.get_ant_location(i)) for i in xrange(2)]
+
+    def has_ant(self, i, j):
+        return (i,j) in self.ant_locations()
 
 class Ant(object):
     def print_radius(ant):
