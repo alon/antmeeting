@@ -50,20 +50,17 @@ class Run(object):
         for ant in self.ants:
             if ant is None: continue
             if ant.get_state() != self.FOUND_BASE and self.grid.step(ant) == 1:
-                print "MEETING!"
                 done = True
         return done
 
     def run(self, steps, renderer=None):
         grid, ants = self.grid, self.ants
         grid.display()
-
         def pyx_post_step():
             self.canvases = py_renderer.canvases
-
         post_step = lambda: None
         FOUND_BASE = self.FOUND_BASE
-
+        done = False
         if renderer is None:
             renderer = PyxRenderer(self.pyx_output_filename, draw_slide_title=self._draw_slide_title)
             post_step = pyx_post_step
@@ -83,6 +80,7 @@ class Run(object):
         grid.display()
         #pyx_renderer.create_pdf() # actually create the output pdf
         post_step()
+        return done
 
 class ObstacleRun(Run):
 
@@ -108,8 +106,6 @@ class ObstacleRun(Run):
             if len(ant_locations_d) > 0:
                 ant_locations = [ant_locations_d[k] for k in sorted(ant_locations_d.keys())]
             board_size = (len(obstacles[0]), len(obstacles))
-
-        print ant_locations
 
         Run.__init__(self, pyx_output_filename, board_size=board_size,
             ant_locations=ant_locations, render_steps=render_steps, draw_slide_title=draw_slide_title)
@@ -452,7 +448,6 @@ def randants(run):
     while any(map(is_obst, locs)):
         locs = [randpoint(grid.size) for x in xrange(len(ants))]
     run.update_ant_locations(locs)
-    print locs
 
 def multirun():
     from cache import Cacher
