@@ -85,14 +85,13 @@ class Run(object):
 class ObstacleRun(Run):
 
     def set_map(self, grid):
-        self.grid = self.make_grid(self.board_size)
         self.grid.ants = self.ants
         for l_num, l in enumerate(grid):
             for x, c in enumerate(l):
+                if self.grid[l_num, x].get_back_arrow() == Final.START:
+                    continue
                 if c == '*':
-                    self.grid[l_num+1, x+1].set_obstacle()
-                else:
-                    self.grid[l_num+1, x+1].set_empty()
+                    self.grid[l_num, x].set_obstacle()
 
     def __init__(self, pyx_output_filename, board_size, ant_locations=[],
         obstacles = [], render_steps=[], draw_slide_title=False):
@@ -106,7 +105,6 @@ class ObstacleRun(Run):
             if len(ant_locations_d) > 0:
                 ant_locations = [ant_locations_d[k] for k in sorted(ant_locations_d.keys())]
             board_size = (len(obstacles[0]), len(obstacles))
-
         Run.__init__(self, pyx_output_filename, board_size=board_size,
             ant_locations=ant_locations, render_steps=render_steps, draw_slide_title=draw_slide_title)
         grid = self.grid

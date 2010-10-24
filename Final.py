@@ -160,6 +160,9 @@ class cell(object):
         self._direction = -1
     
     def set_cell(self, back_arrow, ant_sym, ant_ID, for_arrow, direction):
+        assert((back_arrow == EMPTY and for_arrow == EMPTY) or ant_ID in '12')
+        if self._back_arrow == START and back_arrow != START:
+            import pdb; pdb.set_trace()
         self._back_arrow = back_arrow
         self._ant_sym = ant_sym
         self._ant_ID = ant_ID
@@ -220,7 +223,8 @@ class GOAGrid(Grid):
 
     def place_ant_on_grid(s, ant, location):
         ant_i = int(ant.get_symbol()) - 1
-        s[location].set_cell(START, ANT, ant.get_symbol(), EMPTY, 0)    
+        s[location].set_cell(back_arrow=START, ant_ID=ant.get_symbol(),
+                    ant_sym=ANT, for_arrow=EMPTY, direction=0)
         s.ant_locations[ant_i] = location
         s.ant_homes[ant_i] = location
         s.ants[ant_i] = ant
@@ -230,6 +234,7 @@ class GOAGrid(Grid):
             for j in range(x, x+lenx):
                 if s.has_key((i,j)):
                     s[i,j].set_obstacle()
+
     def step(grid, ant):
         if ant.get_bfs()==FOUND_PHER:
             if is_ant_in_radius(grid, ant):
@@ -372,7 +377,8 @@ def move(grid, ant, side, pheromone):
     radius = ant.get_radius()
     location = ant.get_location()
     symbol = ant.get_symbol()
-    old_cell = grid[location] 
+    old_cell = grid[location]
+    assert(not old_cell.is_obstacle())
     # removing ant symbol from old cell
     old_cell.set_ant_sym(EMPTY)
     new_location = radius[2*side + 1]
@@ -381,10 +387,13 @@ def move(grid, ant, side, pheromone):
     # we place the ant in the new location
 #    print "new location is ",new_location
 #    print "pheromones are ", pheromones
+    assert(grid[new_location].is_obstacle() == False)
     if pheromone == EMPTY:
         grid[new_location].set_ant_sym(ANT)
     else:
-        grid[new_location].set_cell(pheromone, ANT, symbol, EMPTY, 0)
+        grid[new_location].set_cell(
+            back_arrow=pheromone, ant_sym=ANT,
+            ant_ID=symbol, for_arrow=EMPTY, direction=0)
     
 # Backtracking         
 def follow_arrow (grid, ant):
