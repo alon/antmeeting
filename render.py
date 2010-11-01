@@ -161,17 +161,30 @@ class PyGameRenderer(Renderer):
             #print
         pygame.display.flip()
 
-def test_pygame(homes = [(2,2), (3,7)]):
+def test_pygame(default_homes = [(2,2), (3,7)]):
     import run
     import pygame
     from pygame import KEYDOWN
     import grid_generators
-    def make_map():
-        return grid_generators.grid_makers[0](size=(10,10), p_empty=0.9)
+    import maps
+    random_map_pair = (
+        lambda: grid_generators.grid_makers[0](size=(10,10), p_empty=0.9)
+        ,lambda defaults, size: defaults
+    )
+    random_homes_pair = (
+        lambda: maps.read_maze('maze_000.map')
+        ,lambda defaults, size: [map(lambda s: random.randint(0, s), size) for i in xrange(len(defaults))]
+    )
+
+    #make_map, make_homes = random_map_pair
+    make_map, make_homes = random_homes_pair
     zmap = make_map()
+    size = (len(zmap), len(zmap[0]))
+    homes = make_homes(defaults=default_homes, size=size)
     while any([zmap[x][y] == '*' for x, y in homes]):
         print "."
         zmap = make_map()
+        homes = make_homes(defaults=default_homes, size=size)
     board_size = (10, 10)
     steps = 1
     cont = True
@@ -198,9 +211,9 @@ def test_pygame(homes = [(2,2), (3,7)]):
             pygame.display.set_caption(str(steps))
         if cont:
             goa=run.GOARun('', board_size=board_size, ant_locations=homes)
-            goa.grid.display()
+            #goa.grid.display()
             goa.set_map(zmap)
-            goa.grid.display()
+            #goa.grid.display()
             done = False
             for i in xrange(steps):
                 done = goa.single_step()
