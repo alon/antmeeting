@@ -8,13 +8,16 @@ import grid_generators
 import maps
 from render import PyGameRenderer
 
+def chunk(n, ll):
+    return [l[:n] for l in ll[:n]]
+
 random_map_pair = (
     lambda: grid_generators.grid_makers[0](size=(10,10), p_empty=0.9)
     ,lambda defaults, size: defaults
 )
 random_homes_pair = (
-    lambda: maps.read_maze('maze_000.map')
-    ,lambda defaults, size: [map(lambda s: random.randint(0, s), size) for i in xrange(len(defaults))]
+    lambda: chunk(10, maps.read_maze('maze_000.map'))
+    ,lambda defaults, size: [map(lambda s: random.randint(0, s-1), size) for i in xrange(len(defaults))]
 )
 
 def make_map_with_ants_on_vacancies(default_homes, make_map, make_homes):
@@ -33,7 +36,7 @@ def test_pygame(default_homes = [(2,2), (3,7)]):
     zmap, homes = make_map_with_ants_on_vacancies(
         default_homes=default_homes,
         make_map=make_map, make_homes=make_homes)
-    board_size = (10, 10)
+    board_size = (len(zmap), len(zmap[0]))
     steps = 1
     cont = True
     renderer = PyGameRenderer()
@@ -56,6 +59,8 @@ def test_pygame(default_homes = [(2,2), (3,7)]):
                     steps = max(0, action(steps, num))
                     num = 0
                     action = lambda x, y: x + y
+                elif event.unicode == 'p':
+                    import pdb; pdb.set_trace()
             pygame.display.set_caption(str(steps))
         if cont:
             goa=run.GOARun('', board_size=board_size, ant_locations=homes)

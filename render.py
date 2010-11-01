@@ -57,12 +57,13 @@ class PyGameRenderer(Renderer):
 
         if self.screen:
             return
-        cell_width = 64 # TODO - take from red size
-        self.size = (cell_width*grid_width, cell_width*grid_height)
-        self.grid_size = (grid_width, grid_height)
-        if max(self.size) > 800:
-                print "%d is too large, size is %s" % (n, self.size)
-                raise SystemExit
+        self.size = (801,801)
+        cell_width = 128
+        while max(self.size) > 800:
+            cell_width = cell_width / 2
+            self.size = (cell_width*grid_width, cell_width*grid_height)
+            self.grid_size = (grid_width, grid_height)
+        self.cell_width = cell_width
         self.screen = pygame.display.set_mode(self.size,
             pygame.DOUBLEBUF) # pygame.HWSURFACE
         self.cell_width = cell_width
