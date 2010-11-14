@@ -17,8 +17,8 @@ class Grid(object):
         """
         self.render_size = board_size
         self.size = self.render_size
-        self.grid = [[cell(self) for j in xrange(self.size[1]+1)]
-                        for i in xrange(self.size[0]+1)]
+        self.grid = [[cell(self) for j in xrange(self.size[1])]
+                        for i in xrange(self.size[0])]
         self.ant_locations = [None, None]
         self.ant_homes = [None, None]
         self.ants = [None, None]
