@@ -34,10 +34,13 @@ class Grid(object):
 
     # Dictionary protocol
     def __getitem__(self, k):
-        if k[0] >= len(self.grid) or k[0] < 0: return self.obstacle
-        row = self.grid[k[0]]
-        if k[1] >= len(row) or k[1] < 0: return self.obstacle
-        return row[k[1]]
+        y, x = k
+        if y >= len(self.grid) or y < 0:
+            return self.obstacle
+        row = self.grid[y]
+        if x >= len(row) or x < 0:
+            return self.obstacle
+        return row[x]
 
     def has_key(self, k):
         return (0 <= k[0] <= self.size[0]) and (0 <= k[1] <= self.size[1])
