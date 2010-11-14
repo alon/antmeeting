@@ -444,11 +444,13 @@ def is_blocked_side(grid, ant, side):
     if DEBUG:
         print "blocked?", grid[radius[2*side+1][0],radius[2*side+1][1]].get_back_arrow()
     #or grid[radius[2*side+1][0],radius[2*side+1][1]].get_back_arrow() == get_back_pheromone(side)
-    if grid[radius[2*side+1][0],radius[2*side+1][1]].get_back_arrow() == EMPTY \
-        or grid[radius[2*side+1][0],radius[2*side+1][1]].get_back_arrow() == get_back_pheromone(side) \
-        or grid[radius[2*side+1][0],radius[2*side+1][1]].get_for_arrow() == get_back_pheromone(side):
-        return 0
-    return 1
+    cell = grid[radius[2*side+1][0],radius[2*side+1][1]]
+    if cell.is_obstacle() and radius[2*side+1][0] > len(grid.grid):
+        import pdb; pdb.set_trace()
+    return (cell.get_back_arrow() == EMPTY
+        or cell.get_back_arrow() == get_back_pheromone(side)
+        or cell.get_for_arrow() == get_back_pheromone(side)
+        or cell.is_obstacle())
     
 def is_blocked(grid, ant):
     ant.set_radius()
