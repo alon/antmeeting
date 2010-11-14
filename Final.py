@@ -244,7 +244,7 @@ class GOAGrid(Grid):
         if ant.get_bfs()==SEARCH:
             ant_pheromone = is_pal_in_radius(grid, ant)
             direction = grid[ant.get_location()].get_direction()
-            if ant_pheromone != 0:  
+            if ant_pheromone != 0:
     #            print "FOUND PHEROMONE :",ant_pheromone
                 if ant.get_ID() > int(grid[ant_pheromone[0]].get_ant_ID()):
     #                print "master"
@@ -465,8 +465,11 @@ def is_blocked(grid, ant):
     
 def is_empty(grid, ant, side):
     radius = ant.get_radius()
-#    print grid[ant.radius[2*side+1][0],ant.radius[2*side+1][1]]
-    if grid[radius[2*side+1][0],radius[2*side+1][1]].get_back_arrow() == EMPTY:
+    x, y = radius[2*side+1]
+    back_arrow = grid[x, y].get_back_arrow()
+    #print "side = %s, x = %s, y = %s, back_arrow = %s, grid[x,y] = %s" % (side,
+    #    x, y, back_arrow, grid[x, y])
+    if back_arrow == EMPTY:
         return 1
     return 0    
 
@@ -545,13 +548,13 @@ def get_backtrack(grid, ant):
         return 3
     else:
         return -1
-    
+
 def get_next(grid, ant):
     location = grid[ant.get_location()]
     radius = ant.get_radius()
     old_direction = location.get_direction()
     back = get_backtrack(grid, ant)
-    
+
     count = 0
     while(count<4):
         new_direction = location.inc_direction()
@@ -579,6 +582,4 @@ def get_next(grid, ant):
             return new_direction
         count+=1
     return -1
-    
-
 

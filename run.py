@@ -1,7 +1,5 @@
 #!/usr/bin/python
 
-#from Final import GOAGrid, GOAAnt
-#from MustMeet import COAAnt, COAGrid
 import cPickle
 import random
 
@@ -38,7 +36,6 @@ class Run(object):
         self.board_size = board_size
         self._draw_slide_title = draw_slide_title
         grid = self.grid
-        #grid.create_walls()
         ants = self.ants = self.make_ants(ant_locations)
         self.update_ant_locations(ant_locations)
         # initialize pyx variables
@@ -76,9 +73,7 @@ class Run(object):
         else:
             print "NO MEETING!"
             i = steps
-        #grid.display(pyx_renderer=pyx_renderer, step_num = i)
         grid.display()
-        #pyx_renderer.create_pdf() # actually create the output pdf
         post_step()
         return done
 
@@ -113,18 +108,6 @@ class ObstacleRun(Run):
         else:
             for obst in obstacles:
                 grid.create_obstacle(*obst)
-
-        #create_obstacle(grid, 4, 10, 3, 3)
-        #create_obstacle(grid, 4, 4, 3, 3)
-        #create_obstacle(grid, 10, 4, 3, 3)
-        #create_obstacle(grid, 7, 8, 1, 1)
-        #create_obstacle(grid, 9, 8, 1, 1)
-        #create_obstacle(grid, 8, 9, 1, 1)
-        #create_obstacle(grid, 3, 3, 5, 5)
-        #create_obstacle(grid, 3, 9, 5, 5)
-        #create_obstacle(grid, 9, 9, 5, 5)
-        #create_obstacle(grid, 9, 3, 5, 5)
-        # creating ants
 
 class GOARun(ObstacleRun):
     FOUND_BASE = Final.FOUND_BASE

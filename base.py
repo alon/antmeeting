@@ -23,6 +23,8 @@ class Grid(object):
         self.ant_homes = [None, None]
         self.ants = [None, None]
         self.empty = cell(self) # default empty cell to return for out of range checks (TODO: make immutable)
+        self.obstacle = cell(self)
+        self.obstacle.set_obstacle()
 
     def create_walls(s):
         s.create_obstacle(0, 1, 1, s.size[0])
@@ -32,9 +34,9 @@ class Grid(object):
 
     # Dictionary protocol
     def __getitem__(self, k):
-        if k[0] >= len(self.grid) or k[0] < 0: return self.empty
+        if k[0] >= len(self.grid) or k[0] < 0: return self.obstacle
         row = self.grid[k[0]]
-        if k[1] >= len(row) or k[1] < 0: return self.empty
+        if k[1] >= len(row) or k[1] < 0: return self.obstacle
         return row[k[1]]
 
     def has_key(self, k):
