@@ -30,9 +30,15 @@ def make_map_with_ants_on_vacancies(default_homes, make_map, make_homes):
         homes = make_homes(defaults=default_homes, size=size)
     return zmap, homes
 
+test_pair = (
+    lambda : ['     ',' *** ', ' *** ', ' *** ', '     '],
+    lambda defaults, size: [(1, 0), (4, 3)]
+)
+
 def test_pygame(default_homes = [(2,2), (3,7)]):
     #make_map, make_homes = random_map_pair
     make_map, make_homes = random_homes_pair
+    #make_map, make_homes = test_pair
     zmap, homes = make_map_with_ants_on_vacancies(
         default_homes=default_homes,
         make_map=make_map, make_homes=make_homes)
