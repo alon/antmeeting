@@ -70,41 +70,41 @@ class GOAAnt(Ant):
               (location[0]+1,location[1]),
               (location[0]+1,location[1]-1),
               (location[0],location[1]-1)
-              ] 
-            
+              ]
+
     def get_symbol(self):
         return self._symbol
-            
+
     def set_symbol(self, symbol):
         self._symbol = symbol
-    
+
     def get_location(self):
         return self._location
-    
+
     def set_location(self, location):
         self._location = location
-        
+
     def get_ID(self):
         return self._ID
-    
+
     def set_ID(self, ID):
         self._ID = ID
-    
+
     def get_state(self):
         return self._state
-    
+
     def set_state(self, state):
         self._state = state
 
     def get_bfs(self):
         return self._bfs
-    
+
     def set_bfs(self, bfs):
         self._bfs = bfs
-    
+
     def get_radius(self):
         return self._radius
-    
+
     def set_radius(self):
         self._radius[0] = (self._location[0]-1,self._location[1]-1)
         self._radius[1] = (self._location[0]-1,self._location[1])
@@ -122,7 +122,6 @@ class GOAAnt(Ant):
         print radius[7],location,radius[3]
         print radius[6],radius[5],radius[4]
         print " "
-     
 
 class cell(object):
     def __init__(self, board):
@@ -158,7 +157,7 @@ class cell(object):
         self._ant_ID = PHER_OBSTACLE
         self._for_arrow = PHER_OBSTACLE
         self._direction = -1
-    
+
     def set_cell(self, back_arrow, ant_sym, ant_ID, for_arrow, direction):
         assert((back_arrow == EMPTY and for_arrow == EMPTY) or ant_ID in '12')
         if self._back_arrow == START and back_arrow != START:
@@ -168,45 +167,45 @@ class cell(object):
         self._ant_ID = ant_ID
         self._for_arrow = for_arrow
         self._direction = direction
-    
+
     def get_direction(self):
         return self._direction
-    
+
     def set_direction(self, direction):
-        self._direction = direction    
-    
+        self._direction = direction
+
     def inc_direction(self):
         self._direction = (self._direction+1)%4
-        return self._direction         
-    
+        return self._direction
+
     def dec_direction(self):
         self._direction = (self._direction-1)%4
         return self._direction
-    
+
     def get_ant_sym(self):
         return self._ant_sym
-    
+
     def set_ant_sym(self, ant_sym):
         self._ant_sym = ant_sym
-    
+
     def get_ant_ID(self):
         return self._ant_ID
-    
+
     def set_ant_ID(self, ant_ID):
         self._ant_ID = ant_ID
-    
+
     def get_for_arrow(self):
         return self._for_arrow
-    
+
     def set_for_arrow(self, for_arrow):
         self._for_arrow = for_arrow
-    
+
     def get_back_arrow(self):
         return self._back_arrow
-    
+
     def set_back_arrow(self, back_arrow):
         self._back_arrow = back_arrow
-    
+
     def string_cell(self):
         return "".join((self._back_arrow, self._ant_sym, self._ant_ID, self._for_arrow))
 
@@ -245,16 +244,12 @@ class GOAGrid(Grid):
             ant_pheromone = is_pal_in_radius(grid, ant)
             direction = grid[ant.get_location()].get_direction()
             if ant_pheromone != 0:
-    #            print "FOUND PHEROMONE :",ant_pheromone
                 if ant.get_ID() > int(grid[ant_pheromone[0]].get_ant_ID()):
-    #                print "master"
                     ant.set_state(FOUND_PHEROMONE_MASTER)
                     side = (ant_pheromone[1]-1)/2
-    #                print "side is ",side
                     move(grid, ant, side, EMPTY)
                     ant.set_bfs(FOUND_PHER)
                 else:
-    #                print "servant"
                     ant.set_state(FOUND_PHEROMONE_SERVANT)
                     ant.set_bfs(FOUND_PHER)
             else:
@@ -295,7 +290,7 @@ class GOAGrid(Grid):
                 if DEBUG:
                     print "BLOCKED"
                 old_location = grid[ant.get_location()]
-                
+
                 if old_location.get_back_arrow() == START:
                     direction = get_next(grid, ant)
                     move(grid, ant, direction, START)                
@@ -303,7 +298,7 @@ class GOAGrid(Grid):
                     follow_arrow(grid, ant)
                 #old_location.set_pher_obstacle()
             else:
-                follow_arrow(grid, ant)        
+                follow_arrow(grid, ant)
                 if DEBUG:
                     print "ant location: ", ant.get_location()
                 original_direction = grid[ant.get_location()].get_direction()
@@ -359,7 +354,7 @@ def get_back_pheromone(move):
     elif move == 2:
         return UP_SYM
     elif move == 3:
-        return RIGHT_SYM           
+        return RIGHT_SYM
 
 def get_for_pheromone(move):
     if move == 0:
@@ -369,9 +364,9 @@ def get_for_pheromone(move):
     elif move == 2:
         return DOWN_SYM
     elif move == 3:
-        return LEFT_SYM           
+        return LEFT_SYM
 
-# the actual movement of the ant 
+# the actual movement of the ant
 def move(grid, ant, side, pheromone):
     ant.set_radius()
     radius = ant.get_radius()
@@ -383,7 +378,7 @@ def move(grid, ant, side, pheromone):
     old_cell.set_ant_sym(EMPTY)
     new_location = radius[2*side + 1]
     ant.set_location(new_location)
-    ant.set_radius()        
+    ant.set_radius()
     # we place the ant in the new location
 #    print "new location is ",new_location
 #    print "pheromones are ", pheromones
@@ -394,15 +389,15 @@ def move(grid, ant, side, pheromone):
         grid[new_location].set_cell(
             back_arrow=pheromone, ant_sym=ANT,
             ant_ID=symbol, for_arrow=EMPTY, direction=0)
-    
-# Backtracking         
+
+# Backtracking
 def follow_arrow (grid, ant):
     if DEBUG:
         print "ant location: ", ant.get_location()
     ant.set_radius()
     radius = ant.get_radius()
     location = ant.get_location()
-    grid[location].set_ant_sym(EMPTY)        
+    grid[location].set_ant_sym(EMPTY)
     if grid[location].get_back_arrow() == UP_SYM:
         if DEBUG:
             print "up"
@@ -429,8 +424,8 @@ def follow_arrow (grid, ant):
 #        old_location.pop_arr_stack()
 #    print ant.orientation
 #    time.sleep(2)
-            
-   
+
+
 def is_obstacle(grid, ant, side):
     radius = ant.get_radius()
     if grid[radius[2*side+1][0],radius[2*side+1][1]].get_back_arrow() == OBSTACLE \
@@ -451,7 +446,7 @@ def is_blocked_side(grid, ant, side):
         or cell.get_back_arrow() == get_back_pheromone(side)
         or cell.get_for_arrow() == get_back_pheromone(side)
         or cell.is_obstacle())
-    
+
 def is_blocked(grid, ant):
     ant.set_radius()
     radius = ant.get_radius()
@@ -464,7 +459,7 @@ def is_blocked(grid, ant):
     if count == 3:
         return 1
     return 0
-    
+
 def is_empty(grid, ant, side):
     radius = ant.get_radius()
     x, y = radius[2*side+1]
@@ -473,7 +468,7 @@ def is_empty(grid, ant, side):
     #    x, y, back_arrow, grid[x, y])
     if back_arrow == EMPTY:
         return 1
-    return 0    
+    return 0
 
 def is_ant_in_radius(grid, ant):
     radius = ant.get_radius()
@@ -486,13 +481,13 @@ def is_pal_in_radius(grid, ant):
     radius = ant.get_radius()
     #012
     #7 3
-    #654    
+    #654
     for i in [1,3,5,7]:
         if (grid[radius[i]].get_ant_ID() != ant.get_symbol()) and (grid[radius[i]].get_ant_ID() != EMPTY) \
             and (grid[radius[i]].get_ant_ID() != OBSTACLE) and (grid[radius[i]].get_ant_ID() != PHER_OBSTACLE):
             return [radius[i],i]
     return 0
-    
+
 def is_pheromone_in_side(grid, ant, side, pheromone, type):
     radius = ant.get_radius()
     if (type == PHER_ARROW):
@@ -537,7 +532,7 @@ def get_first(grid, ant):
 #            back_arrow = grid[radius[2*new_direction+1][0],radius[2*new_direction+1][1]].get_back_arrow()
 #            if back_arrow == get_back_pheromone(new_direction):
 #                return new_direction
-#    
+#
 def get_backtrack(grid, ant):
     back = grid[ant.get_location()].get_back_arrow()
     if back == UP_SYM:
