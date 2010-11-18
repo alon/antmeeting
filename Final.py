@@ -51,6 +51,7 @@ PHER_FRINGE = 3
 NUM = 2
 DEBUG = 0
 
+arrow2num = {DOWN_SYM:DOWN, UP_SYM:UP, LEFT_SYM:LEFT, RIGHT_SYM:RIGHT}
 
 class GOAAnt(Ant):
     def __init__(self, symbol, location, ID, state, bfs):
@@ -227,86 +228,12 @@ class GOAGrid(Grid):
         s.ant_locations[ant_i] = location
         s.ant_homes[ant_i] = location
         s.ants[ant_i] = ant
-     
+
     def create_obstacle(s, x, y, lenx, leny):
         for i in range(y, y+leny):
             for j in range(x, x+lenx):
                 if s.has_key((i,j)):
                     s[i,j].set_obstacle()
-
-    def step(grid, ant):
-        if ant.get_bfs()==FOUND_PHER:
-            if is_ant_in_radius(grid, ant):
-                return 1
-            elif not grid[ant.get_location()].get_back_arrow()==START:
-                follow_arrow(grid, ant)
-        if ant.get_bfs()==SEARCH:
-            ant_pheromone = is_pal_in_radius(grid, ant)
-            direction = grid[ant.get_location()].get_direction()
-            if ant_pheromone != 0:
-                if ant.get_ID() > int(grid[ant_pheromone[0]].get_ant_ID()):
-                    ant.set_state(FOUND_PHEROMONE_MASTER)
-                    side = (ant_pheromone[1]-1)/2
-                    move(grid, ant, side, EMPTY)
-                    ant.set_bfs(FOUND_PHER)
-                else:
-                    ant.set_state(FOUND_PHEROMONE_SERVANT)
-                    ant.set_bfs(FOUND_PHER)
-            else:
-                if DEBUG:
-                    print ant.get_location()
-                if is_blocked(grid, ant):
-    #                if DEBUG:
-    #                    print "BLOCKED"
-    #                old_location = grid[ant.get_location()]
-    #                follow_arrow(grid, ant)
-    #                if old_location.get_back_arrow() == START:
-    #                    grid[ant.get_location()].set_back_arrow(START)
-    #                old_location.set_pher_obstacle()
-                    ant.set_bfs(BACKTRACK)
-                else:
-                    direction = get_next(grid, ant)
-                    if DEBUG:
-                        print "next direction is: ", direction
-                    grid[ant.get_location()].set_direction(direction)
-                    if direction == -1:
-                        ant.set_bfs(BACKTRACK)
-                    elif is_empty(grid, ant, direction):
-                        grid[ant.get_location()].set_for_arrow(get_for_pheromone(direction))                
-                        move(grid, ant, direction, get_back_pheromone(direction))
-                        if DEBUG:
-                            print "ant location: ", ant.get_location()
-                        ant.set_bfs(BACKTRACK)
-                    else:
-                        grid[ant.get_location()].set_for_arrow(get_for_pheromone(direction))
-                        move(grid, ant, direction, EMPTY)
-                    ant_pheromone = is_pal_in_radius(grid, ant)
-                    direction = grid[ant.get_location()].get_direction()
-                    if ant_pheromone != 0:  
-                        ant.set_bfs(SEARCH)
-                    
-        elif ant.get_bfs()==BACKTRACK:
-            if is_blocked(grid, ant):
-                if DEBUG:
-                    print "BLOCKED"
-                old_location = grid[ant.get_location()]
-
-                if old_location.get_back_arrow() == START:
-                    direction = get_next(grid, ant)
-                    move(grid, ant, direction, START)                
-                else:
-                    follow_arrow(grid, ant)
-                #old_location.set_pher_obstacle()
-            else:
-                follow_arrow(grid, ant)
-                if DEBUG:
-                    print "ant location: ", ant.get_location()
-                original_direction = grid[ant.get_location()].get_direction()
-                new_direction = get_next(grid, ant)
-                grid[ant.get_location()].set_direction(original_direction)
-                if grid[ant.get_location()].get_back_arrow()==START or \
-                    not get_first(grid, ant) == new_direction:
-                    ant.set_bfs(SEARCH)
 
     def render_cell(self, cell, c, i, j):
         """ draw cell onto canvas """
@@ -345,7 +272,57 @@ class GOAGrid(Grid):
                     style.linewidth(0.05)])))
         return cmds
 
-  
+    def step(grid, ant):
+        if ant.get_bfs()==FOUND_PHER:
+            if is_ant_in_radius(grid, ant):
+                return 1
+            elif not grid[ant.get_location()].get_back_arrow()==START:
+                follow_arrow(grid, ant)
+        if ant.get_bfs()==SEARCH:
+            ant_pheromone = is_pal_in_radius(grid, ant)
+            direction = grid[ant.get_location()].get_direction()
+            if ant_pheromone != 0:
+                if ant.get_ID() > int(grid[ant_pheromone[0]].get_ant_ID()):
+                    ant.set_state(FOUND_PHEROMONE_MASTER)
+                    side = (ant_pheromone[1]-1)/2
+                    move(grid, ant, side, EMPTY)
+                    ant.set_bfs(FOUND_PHER)
+                else:
+                    ant.set_state(FOUND_PHEROMONE_SERVANT)
+                    ant.set_bfs(FOUND_PHER)
+            else:
+                direction = get_next(grid, ant)
+                grid[ant.get_location()].set_direction(direction)
+                grid[ant.get_location()].set_for_arrow(get_for_pheromone(direction))
+                move(grid, ant, direction, get_back_pheromone(direction))
+                if is_ant_in_radius(grid, ant):
+                    return 1
+                if is_pal_in_radius(grid, ant) != 0:
+                    ant.set_bfs(SEARCH)
+
+        elif ant.get_bfs()==BACKTRACK:
+            if is_blocked(grid, ant):
+                if DEBUG:
+                    print "BLOCKED"
+                old_location = grid[ant.get_location()]
+
+                if old_location.get_back_arrow() == START:
+                    direction = get_next(grid, ant)
+                    move(grid, ant, direction, START)
+                else:
+                    follow_arrow(grid, ant)
+                old_location.set_pher_obstacle()
+            else:
+                follow_arrow(grid, ant)
+                if DEBUG:
+                    print "ant location: ", ant.get_location()
+                original_direction = grid[ant.get_location()].get_direction()
+                new_direction = get_next(grid, ant)
+                grid[ant.get_location()].set_direction(original_direction)
+                if grid[ant.get_location()].get_back_arrow()==START or \
+                    not get_first(grid, ant) == new_direction:
+                    ant.set_bfs(SEARCH)
+
 def get_back_pheromone(move):
     if move == 0:
         return DOWN_SYM
@@ -552,31 +529,9 @@ def get_next(grid, ant):
     old_direction = location.get_direction()
     back = get_backtrack(grid, ant)
 
-    count = 0
-    while(count<4):
-        new_direction = location.inc_direction()
-        if DEBUG:
-            print "(1)back pheromone is: ",back
-        if not back == new_direction:
-            if DEBUG:
-                print "(1)new direction is: ",new_direction
-            back_arrow = grid[radius[2*new_direction+1][0],radius[2*new_direction+1][1]].get_back_arrow()
-            if DEBUG:
-                print "(1)back arrow is:", back_arrow
-                print "(1)old direction is: ",old_direction
-            if back_arrow == EMPTY:
-                return new_direction
-        count+=1
-    count = 0
-    while(count<4):
-        new_direction = location.inc_direction()
-        if DEBUG:
-            print "(2)new direction is: ",new_direction
+    while True:
+        new_direction = location.dec_direction()
         back_arrow = grid[radius[2*new_direction+1][0],radius[2*new_direction+1][1]].get_back_arrow()
-        if DEBUG:
-            print "(2)back arrow is:", back_arrow
-        if back_arrow == get_back_pheromone(new_direction):
+        if back_arrow == EMPTY or back_arrow == START or back_arrow == get_back_pheromone(new_direction):
             return new_direction
-        count+=1
-    return -1
 
