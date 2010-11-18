@@ -35,6 +35,9 @@ test_pair = (
     lambda defaults, size: [(1, 0), (4, 3)]
 )
 
+def xys(width, height):
+    return zip(range(width)*height, sum([[i]*width for i in range(height)],[]))
+
 def test_pygame(default_homes = [(2,2), (3,7)]):
     #make_map, make_homes = random_map_pair
     make_map, make_homes = random_homes_pair
@@ -46,6 +49,7 @@ def test_pygame(default_homes = [(2,2), (3,7)]):
     cont = True
     renderer = PyGameRenderer()
     s.num = 0
+    s.cont = True
     action = lambda x, y: x + y
     def next_step(k):
         s.steps += 1
@@ -56,13 +60,35 @@ def test_pygame(default_homes = [(2,2), (3,7)]):
             default_homes=default_homes,
             make_map=make_map, make_homes=make_homes)
         s.board_size = (len(s.zmap), len(s.zmap[0]))
+    def astar(k):
+        import AStar
+        startpoint, endpoint = homes = map(tuple, s.homes)
+        width, height = s.board_size
+        trans = {'*':-1, ' ':1}
+        snart = {-1:'*', 1:' '}
+        mapdata = dict([((x,y),trans[s.zmap[x][y]]) for x,y in xys(width, height)])
+        def pos(mapdata, x, y):
+            if (x,y) in homes:
+                return str(homes.index((x,y)) + 1)
+            return snart[mapdata[(x,y)]]
+        for x in range(width):
+            print ''.join(pos(mapdata,x,y) for y in range(height))
+        astar = AStar.AStar(AStar.SQ_MapHandler(mapdata, width, height))
+        start = AStar.SQ_Location(startpoint[0],startpoint[1])
+        end = AStar.SQ_Location(endpoint[0],endpoint[1])
+        p = astar.findPath(start,end)
+        if p:
+            print p, len(p.nodes)
+        else:
+            print "no path"
+
     randomize(None)
     keys = {'a': next_step, 'z': prev_step,
-            'r': randomize}
-    while cont:
+            'r': randomize, 's': astar}
+    def singlestep():
         for event in pygame.event.get():
             if event.type == pygame.QUIT or event.type == KEYDOWN and event.unicode == 'q':
-                cont = False
+                s.cont = False
             elif event.type == KEYDOWN:
                 if event.unicode in keys.keys():
                     keys[event.unicode](event.unicode)
@@ -77,7 +103,7 @@ def test_pygame(default_homes = [(2,2), (3,7)]):
                 elif event.unicode == 'p':
                     import pdb; pdb.set_trace()
             pygame.display.set_caption(str(s.steps))
-        if cont:
+        if s.cont:
             goa=run.GOARun('', board_size=s.board_size, ant_locations=s.homes)
             #goa.grid.display()
             goa.set_map(s.zmap)
@@ -92,6 +118,13 @@ def test_pygame(default_homes = [(2,2), (3,7)]):
                 pygame.display.set_caption('MEETING - %d (%d)' % (done_step, s.steps))
             renderer.render(goa.grid, 1)
             pygame.time.delay(10)
+
+    while s.cont:
+        try:
+            singlestep()
+        except KeyboardInterrupt:
+            s.cont = False
+    print "pygame exit time sucks"
 
 if __name__ == '__main__':
     test_pygame()
