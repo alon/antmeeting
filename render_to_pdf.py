@@ -1,8 +1,11 @@
 import os
 from string import ascii_lowercase
-from pyx import *
 
-grey = color.rgb(0.5,0.5,0.5)
+try:
+	from pyx import *
+	grey = color.rgb(0.5,0.5,0.5)
+except:
+	print "no pdf"
 
 def center_of_gravity(grid, ant_num):
     x, y = 0, 0
