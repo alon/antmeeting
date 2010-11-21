@@ -274,12 +274,12 @@ class GOAGrid(Grid):
         return cmds
 
     def step(grid, ant):
-        if ant.get_bfs()==FOUND_PHER:
-            if is_ant_in_radius(grid, ant):
-                return 1
-            elif not grid[ant.get_location()].get_back_arrow()==START:
+        if is_ant_in_radius(grid, ant):
+            return 1
+        elif ant.get_bfs()==FOUND_PHER:
+            if not grid[ant.get_location()].get_back_arrow()==START:
                 follow_arrow(grid, ant)
-        if ant.get_bfs()==SEARCH:
+        elif ant.get_bfs()==SEARCH:
             ant_pheromone = is_pal_in_radius(grid, ant)
             direction = grid[ant.get_location()].get_direction()
             if ant_pheromone != 0:
@@ -398,6 +398,8 @@ def follow_arrow (grid, ant):
     new_location = ant.get_location()
 #    print "new location is ", new_location
     grid[new_location].set_ant_sym(ANT)
+    if is_ant_in_radius(grid, ant):
+        return 1
     if DEBUG:
         print "ant location: ", ant.get_location()
 #    if old_location.arr_stack_size() > 1:
