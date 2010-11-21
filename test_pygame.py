@@ -50,7 +50,7 @@ def test_pygame(default_homes = [(2,2), (3,7)]):
     renderer = PyGameRenderer()
     s.num = 0
     s.cont = True
-    action = lambda x, y: x + y
+    s.action = lambda x, y: x + y
     def next_step(k):
         s.steps += 1
     def prev_step(k):
@@ -95,11 +95,11 @@ def test_pygame(default_homes = [(2,2), (3,7)]):
                 elif ord('0') <= event.key <= ord('9'):
                     s.num = s.num*10 + event.key - ord('0')
                 elif event.unicode == '-':
-                    action = lambda x, y: x - y
+                    s.action = lambda x, y: x - y
                 elif event.key == 13:
-                    s.steps = max(0, action(s.steps, s.num))
+                    s.steps = max(0, s.action(s.steps, s.num))
                     s.num = 0
-                    action = lambda x, y: x + y
+                    s.action = lambda x, y: x + y
                 elif event.unicode == 'p':
                     import pdb; pdb.set_trace()
             pygame.display.set_caption(str(s.steps))
