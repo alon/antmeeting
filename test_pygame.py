@@ -42,7 +42,7 @@ def test_pygame(default_homes = [(2,2), (3,7)]):
     class Data(object):
         pass
     s = Data()
-    s.steps = 1
+    s.steps = 0
     cont = True
     renderer = PyGameRenderer()
     s.num = 0
