@@ -41,22 +41,17 @@ def xys(width, height):
 
 snart = {-1:'*', 1:' '}
 
-class Poser:
-    def __init__(self, homes):
-        self.homes = homes
-    def get_pos(self, mapdata, x, y):
-        if (x,y) in self.homes:
-            return str(self.homes.index((x,y)) + 1)
-        return snart[mapdata[(x,y)]]
+def pos(homes, mapdata, x, y):
+   return (str(homes.index((x,y)) + 1)
+           if (x,y) in homes else snart[mapdata[(x,y)]])
 
 def astar(homes, zmap):
     startpoint, endpoint = homes = map(tuple, homes)
     width, height = len(zmap), len(zmap[0])
     trans = {'*':-1, ' ':1}
     mapdata = dict([((x,y),trans[zmap[x][y]]) for x,y in xys(width, height)])
-    pos = Poser(homes).get_pos
     for x in range(width):
-        print ''.join(pos(mapdata,x,y) for y in range(height))
+        print ''.join(pos(homes,mapdata,x,y) for y in range(height))
     astar = AStar.AStar(AStar.SQ_MapHandler(mapdata, width, height))
     start = AStar.SQ_Location(startpoint[0],startpoint[1])
     end = AStar.SQ_Location(endpoint[0],endpoint[1])
