@@ -1,4 +1,5 @@
 #from constants import *
+# DONT SHEDSKIN THIS. HAS VARIABLES THAT CHANGE TYPE.
 import time
 
 BOARD_SIZE = (16, 16)
@@ -16,7 +17,6 @@ RIGHT_SYM = ">"
 DOWN_SYM = "V"
 LEFT_SYM = "<"
 OBSTACLE = "OO"
-
 
 def print_grid(grid):
     for i in range(0, BOARD_SIZE[0]+1):
