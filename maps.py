@@ -1,4 +1,7 @@
-import linecache
+# TODO: linecache is not in shedskin
+#import linecache
+
+import my_linecache as linecache
 
 def read_maze(fname):
     trans = dict(zip('.@', ' *'))

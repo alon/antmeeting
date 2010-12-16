@@ -1,3 +1,5 @@
+from Ants import print_grid
+
 BOARD_SIZE = (20, 20)
 STARTING_LOCATION_1 = (7,7)
 STARTING_LOCATION_2 = (3,3)
@@ -20,7 +22,6 @@ NUM = 2
 
 #from constants import *
 import time
-
 
 class ant(object):
     def __init__(self, symbol, location):
@@ -117,13 +118,6 @@ def force_orientation(ant,side):
     ant.set_orientation(side)
     ant_update_radius(ant)
     
-def print_grid(grid):
-    for i in range(0, BOARD_SIZE[0]+1):
-        for j in range(0, BOARD_SIZE[1]+1):
-            print "".join(grid[i,j]),    
-        print " "
-    print " "
- 
 def move(grid, ant, side, pheromone):
     radius = ant.get_radius()
     location = ant.get_location()

@@ -1,8 +1,6 @@
 #from constants import *
 import time
 
-from render_to_pdf import *
-
 BOARD_SIZE = (16, 16)
 STARTING_LOCATION = (8,8)
 STEPS = 70
@@ -19,6 +17,13 @@ DOWN_SYM = "V"
 LEFT_SYM = "<"
 OBSTACLE = "OO"
 
+
+def print_grid(grid):
+    for i in range(0, BOARD_SIZE[0]+1):
+        for j in range(0, BOARD_SIZE[1]+1):
+            print grid[i,j].string_cell(),
+        print " "
+    print " "
 
 class ant(object):
     orientation = UP
@@ -75,26 +80,6 @@ def set_orientation(ant,side):
 def force_orientation(ant,side):
     ant.orientation = side
     ant_update_radius(ant)
-
-
-class AntsPyxRenderer(PyxRenderer):
-    def render_cell(self, the_cell, c, i, j):
-        """ draw cell onto canvas """
-        symb = the_cell[0]
-        if symb not in [UP_SYM, DOWN_SYM, LEFT_SYM, RIGHT_SYM]:
-            return
-        dx, dy = {UP_SYM: (0, -1), DOWN_SYM: (0, 1), LEFT_SYM: (-1, 0), RIGHT_SYM: (1, 0)}[symb]
-        c.stroke(path.line(j, self.max_y - i, j + dx, self.max_y - (i + dy)), [deco.earrow()])
-
-pyx_renderer = AntsPyxRenderer()
-
-def print_grid(grid):
-    pyx_renderer.render(grid, BOARD_SIZE)
-    for i in range(0, BOARD_SIZE[0]+1):
-        for j in range(0, BOARD_SIZE[1]+1):
-            print grid[i,j],
-        print " "
-    print " "
  
 def move(grid, ant, side, pheromone):
     grid[ant.location] = grid[ant.location].replace(ANT,"_")
@@ -161,59 +146,60 @@ def dead_end(grid, ant):
         return 0
     return 1
 
-grid = init_grid()
-#create_obstacle(grid, BOARD_SIZE[0]/2+6, BOARD_SIZE[0]/2+6, 3, 3)
-
-#create_obstacle(grid, 4, 4, 1, 12)
-#create_obstacle(grid, 6, 2, 2, 2)
-#create_obstacle(grid, 10, 10, 3, 3)
-#create_obstacle(grid, 4, 10, 3, 3)
-#create_obstacle(grid, 4, 4, 3, 3)
-#create_obstacle(grid, 10, 4, 3, 3)
-place_ant_on_grid(grid, ant)
-print_radius(ant)
-
-for i in range(1,STEPS):
-#    print grid[ant.radius[2*RIGHT+1][0],ant.radius[2*RIGHT+1][1]]
-    print_grid(grid)
-    if is_empty(grid, ant, RIGHT):
-        move(grid, ant, RIGHT, get_back_pheromone(ant,RIGHT))
-    elif is_obstacle(grid, ant, RIGHT) and is_empty(grid, ant, UP):
-#        circle_obstacle(grid, ant, RIGHT)
-        move(grid, ant, UP, get_back_pheromone(ant, UP))
-    elif is_obstacle(grid, ant, UP):
-        circle_obstacle(grid, ant, UP)
-    elif is_empty(grid, ant, UP):
-        move(grid, ant, UP, get_back_pheromone(ant,UP))
-    elif is_empty(grid, ant, LEFT):
-        move(grid, ant, LEFT, get_back_pheromone(ant,LEFT))
-    else:
-#        set_orientation(ant, DOWN)
-#        print ant.orientation 
-        while dead_end(grid, ant):
-            follow_arrow(grid, ant)
-            print_grid(grid)
-        
-
-#print ant.orientation
-#toggle_orientation_clockwise(ant)
-#print_radius(ant)
-#print ant.orientation
-#toggle_orientation_clockwise(ant)
-#print_radius(ant)
-#print ant.orientation
-#toggle_orientation_clockwise(ant)
-#print_radius(ant)
-
-
-
-
-#ant = toggle_orientation_clockwise(ant)
-#ant = toggle_orientation_clockwise(ant)
-#ant = toggle_orientation_clockwise(ant)
-
-#print ant.orientation
-
-print_grid(grid)
-
-
+def test():
+   grid = init_grid()
+   #create_obstacle(grid, BOARD_SIZE[0]/2+6, BOARD_SIZE[0]/2+6, 3, 3)
+   
+   #create_obstacle(grid, 4, 4, 1, 12)
+   #create_obstacle(grid, 6, 2, 2, 2)
+   #create_obstacle(grid, 10, 10, 3, 3)
+   #create_obstacle(grid, 4, 10, 3, 3)
+   #create_obstacle(grid, 4, 4, 3, 3)
+   #create_obstacle(grid, 10, 4, 3, 3)
+   place_ant_on_grid(grid, ant)
+   print_radius(ant)
+   
+   for i in range(1,STEPS):
+   #    print grid[ant.radius[2*RIGHT+1][0],ant.radius[2*RIGHT+1][1]]
+       print_grid(grid)
+       if is_empty(grid, ant, RIGHT):
+           move(grid, ant, RIGHT, get_back_pheromone(ant,RIGHT))
+       elif is_obstacle(grid, ant, RIGHT) and is_empty(grid, ant, UP):
+   #        circle_obstacle(grid, ant, RIGHT)
+           move(grid, ant, UP, get_back_pheromone(ant, UP))
+       elif is_obstacle(grid, ant, UP):
+           circle_obstacle(grid, ant, UP)
+       elif is_empty(grid, ant, UP):
+           move(grid, ant, UP, get_back_pheromone(ant,UP))
+       elif is_empty(grid, ant, LEFT):
+           move(grid, ant, LEFT, get_back_pheromone(ant,LEFT))
+       else:
+   #        set_orientation(ant, DOWN)
+   #        print ant.orientation 
+           while dead_end(grid, ant):
+               follow_arrow(grid, ant)
+               print_grid(grid)
+           
+   
+   #print ant.orientation
+   #toggle_orientation_clockwise(ant)
+   #print_radius(ant)
+   #print ant.orientation
+   #toggle_orientation_clockwise(ant)
+   #print_radius(ant)
+   #print ant.orientation
+   #toggle_orientation_clockwise(ant)
+   #print_radius(ant)
+   
+   
+   
+   
+   #ant = toggle_orientation_clockwise(ant)
+   #ant = toggle_orientation_clockwise(ant)
+   #ant = toggle_orientation_clockwise(ant)
+   
+   #print ant.orientation
+   
+   print_grid(grid)
+   
+   

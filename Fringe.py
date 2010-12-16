@@ -208,12 +208,6 @@ def force_orientation(ant,side):
     ant.set_orientation(side)
     ant.set_radius()
     
-def print_grid(grid):
-    for i in range(0, BOARD_SIZE[0]+1):
-        for j in range(0, BOARD_SIZE[1]+1):
-            print grid[i,j].string_cell(),
-        print " "
-    print " "
     
 # the actual movement of the ant 
 def move(grid, ant, side, pheromones):

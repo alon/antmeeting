@@ -7,40 +7,12 @@ from pygame import KEYDOWN
 import grid_generators
 import maps
 from render import PyGameRenderer
-
-def chunk(n, ll):
-    return [l[:n] for l in ll[:n]]
-
-random_map_pair = (
-    lambda: grid_generators.grid_makers[0](size=(10,10), p_empty=0.9)
-    ,lambda defaults, size: defaults
-)
-random_homes_pair = (
-    lambda: chunk(10, maps.read_maze('maze_000.map'))
-    ,lambda defaults, size: [map(lambda s: random.randint(0, s-1), size) for i in xrange(len(defaults))]
-)
-
-def make_map_with_ants_on_vacancies(default_homes, make_map, make_homes):
-    zmap = make_map()
-    size = (len(zmap), len(zmap[0]))
-    homes = make_homes(defaults=default_homes, size=size)
-    while any([zmap[x][y] == '*' for x, y in homes]):
-        print "."
-        zmap = make_map()
-        homes = make_homes(defaults=default_homes, size=size)
-    return zmap, homes
-
-test_pair = (
-    lambda : ['     ',' *** ', ' *** ', ' *** ', '     '],
-    lambda defaults, size: [(1, 0), (4, 3)]
-)
-
-def xys(width, height):
-    return zip(range(width)*height, sum([[i]*width for i in range(height)],[]))
+from multiple_runs import (random_homes_pair_gen,
+     make_map_with_ants_on_vacancies)
 
 def test_pygame(default_homes = [(2,2), (3,7)]):
     #make_map, make_homes = random_map_pair
-    make_map, make_homes = random_homes_pair
+    make_map, make_homes = random_homes_pair_gen(10)
     #make_map, make_homes = test_pair
     class Data(object):
         pass
@@ -110,7 +82,7 @@ def test_pygame(default_homes = [(2,2), (3,7)]):
             #goa.grid.display()
             done = False
             for i in xrange(s.steps):
-                done = goa.single_step()
+                done, number_of_phers = goa.single_step()
                 if done:
                     done_step = i
                     break

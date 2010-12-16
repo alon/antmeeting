@@ -14,6 +14,17 @@ def getoptions(d, os, default):
             return d[o]
     return default
 
+def withpos(grid):
+    for l_i, l in enumerate(grid):
+        for pos, c in enumerate(l):
+            yield (pos, l_i), c
+def handle_symb(s, c):
+    if c == '1':
+        handle_symb.starting_locations[0] = (s[0], s[1])
+    elif c == '2':
+        handle_symb.starting_locations[1] = (s[0], s[1])
+    return {' ':NO_SYMBOL, '*':OBSTACLE}.get(c, NO_SYMBOL)
+
 class FSMBlockObservable(object):
     """ Multiple ants version
 
@@ -28,16 +39,6 @@ class FSMBlockObservable(object):
             self._board = dict([(s, NO_SYMBOL) for s in self._positions])
         else:
             board_size = len(grid), len(grid[0])
-            def withpos(grid):
-                for l_i, l in enumerate(grid):
-                    for pos, c in enumerate(l):
-                        yield (pos, l_i), c
-            def handle_symb(s, c):
-                if c == '1':
-                    handle_symb.starting_locations[0] = (s[0], s[1])
-                elif c == '2':
-                    handle_symb.starting_locations[1] = (s[0], s[1])
-                return {' ':NO_SYMBOL, '*':OBSTACLE}.get(c, NO_SYMBOL)
             handle_symb.starting_locations = starting_locations
             self._board = dict([(s, handle_symb(s, c)) for s, c in withpos(reversed(grid))])
         self._board_size = board_size
@@ -101,11 +102,11 @@ class FSMBlockObservable(object):
             self._stopped[i_ant] = True
             return
         self._pos[i_ant] = {
-            A_LEFT: lambda x, y: (max(0, x-1), y),
-            A_RIGHT: lambda x, y: (min(x+1, board_x-1), y),
-            A_UP: lambda x, y: (x, min(board_y-1, y+1)),
-            A_DOWN: lambda x, y: (x, max(y-1, 0)),
-        }.get(action, lambda x,y: (x,y))(*self._pos[i_ant])
+            A_LEFT: lambda (x, y): (max(0, x-1), y),
+            A_RIGHT: lambda (x, y): (min(x+1, board_x-1), y),
+            A_UP: lambda (x, y): (x, min(board_y-1, y+1)),
+            A_DOWN: lambda (x, y): (x, max(y-1, 0)),
+        }.get(action, lambda (x, y): (x,y))(self._pos[i_ant])
         self._currentstate[i_ant] = nextstate
 
     def getState(self, step):
@@ -194,20 +195,24 @@ def testFSM(fsm, steps=20):
             return
     fsm.dump()
 
+board_size = (70, 70)
+starting_locations = (
+    (20, 20),
+    (26, 19)
+)
+
+def make_fsm(transfer, startstate, radius,
+             starting_locations = starting_locations,
+             board_size = board_size):
+    return FSMBlockObservable(
+        board_size = board_size,
+        starting_locations = starting_locations,
+        transfer = transfer, startstate = startstate, radius=radius)
+
 def test():
     n = 15
     steps = 95
-    board_size = (70, 70)
-    starting_locations = (
-        (20, 20),
-        (26, 19)
-    )
     circle_start, circle_transfer = compute_circle_transfer(n)
-    def make_fsm(transfer, startstate, radius):
-        return FSMBlockObservable(
-            board_size = board_size,
-            starting_locations = starting_locations,
-            transfer = transfer, startstate = startstate, radius=radius)
     roundfsm = make_fsm(
             transfer = circle_transfer,
             startstate = circle_start,

@@ -1,9 +1,9 @@
+class LineWidth(object):
+    pass
 
 class style(object):
     @staticmethod
     def linewidth(width):
-        class LineWidth(object):
-            pass
         lw = LineWidth()
         lw.width = width
         return lw
@@ -26,11 +26,11 @@ class Grid(object):
         self.obstacle = cell(self)
         self.obstacle.set_obstacle()
 
-    def create_walls(s):
-        s.create_obstacle(0, 1, 1, s.size[0])
-        s.create_obstacle(0, 0, s.size[1], 1)
-        s.create_obstacle(1, s.size[0], s.size[1], 1)
-        s.create_obstacle(s.size[1], 0, 1, s.size[0])
+    def create_walls(self):
+        self.create_obstacle(0, 1, 1, self.size[0])
+        self.create_obstacle(0, 0, self.size[1], 1)
+        self.create_obstacle(1, self.size[0], self.size[1], 1)
+        self.create_obstacle(self.size[1], 0, 1, self.size[0])
 
     # Dictionary protocol
     def __getitem__(self, k):
@@ -45,12 +45,12 @@ class Grid(object):
     def has_key(self, k):
         return (0 <= k[0] <= self.size[0]) and (0 <= k[1] <= self.size[1])
 
-    def display(s, renderer = None, step_num = None):
+    def display(self, renderer = None, step_num = None):
         if renderer:
-            renderer.render(s, title=str(step_num))
-        for i in range(0, s.size[0]+1):
-            for j in range(0, s.size[1]+1):
-                print s[i,j],
+            renderer.render(self, title=str(step_num))
+        for i in range(0, self.size[0]+1):
+            for j in range(0, self.size[1]+1):
+                print self[i,j],
             print " "
         print " "
 
@@ -79,9 +79,9 @@ class Grid(object):
         return (i,j) in self.ant_locations()
 
 class Ant(object):
-    def print_radius(ant):
-        radius = ant.get_radius()
-        location = ant.get_location()
+    def print_radius(self):
+        radius = self.get_radius()
+        location = self.get_location()
         print radius[0],radius[1],radius[2]
         print radius[7],location,radius[3]
         print radius[6],radius[5],radius[4]

@@ -1,5 +1,7 @@
 import time
 from base import Grid, Ant
+from Ants import (init_grid, create_obstacle, ant, place_ant_on_grid,
+    print_radius, print_grid)
 
 # Parameters
 #BOARD_SIZE = (20, 19)
@@ -164,12 +166,12 @@ def get_back_pheromone(ant,move):
 #    while is_obstacle(grid, ant, side) and is_empty(grid, ant, (side - 1 % 4)):
 #        move(grid, ant, (side - 1 % 4), get_back_pheromone(ant, (side - 1 % 4)))    
 
+def empty(clazz):
+    return clazz((EMPTY, EMPTY, EMPTY))
+
 class cell(object):
-    def __init__(self, *args):
-        self._t = tuple(*args)
-    @classmethod
-    def empty(clazz):
-        return clazz((EMPTY, EMPTY, EMPTY))
+    def __init__(self, args):
+        self._t = tuple(args)
     def get_ant_ID(self):
         return self._t[2]
     def get_back_arrow(self):
@@ -183,6 +185,9 @@ class cell(object):
     def __str__(self):
         return ''.join(map(str, self._t))
 
+cell.empty = classmethod(empty)
+
+
 class COAGrid(Grid):
 
     def __init__(self, board_size):
@@ -191,10 +196,10 @@ class COAGrid(Grid):
     def __setitem__(self, key, new_item):
         self.grid[key[0]][key[1]] = cell(new_item)
 
-    def create_obstacle(grid,x,y,lenx,leny):
+    def create_obstacle(self,x,y,lenx,leny):
         for i in range(y, y+leny):
             for j in range(x, x+lenx):
-                grid[i,j] = (OBSTACLE,OBSTACLE,OBSTACLE)
+                self[i,j] = (OBSTACLE,OBSTACLE,OBSTACLE)
 
     def get_ant_location(self, i):
         return self.ants[i].get_location()
@@ -202,125 +207,91 @@ class COAGrid(Grid):
     def get_ant_home(self, i):
         return self.ant_homes[i]
 
-    def place_ant_on_grid(grid, ant, location):
+    def place_ant_on_grid(self, ant, location):
         ant_i = int(ant.get_symbol()) - 1
-        grid[(location)] = (START, ANT, ant.get_symbol())
-        grid.ant_locations[ant_i] = location
-        grid.ant_homes[ant_i] = location
-        grid.ants[ant_i] = ant
+        self[(location)] = (START, ANT, ant.get_symbol())
+        self.ant_locations[ant_i] = location
+        self.ant_homes[ant_i] = location
+        self.ants[ant_i] = ant
 
-    def is_obstacle(grid,ant,side):
+    def is_obstacle(self,ant,side):
         radius = ant.get_radius()
-        if grid[radius[2*side+1][0],radius[2*side+1][1]][0] == OBSTACLE:
+        if self[radius[2*side+1][0],radius[2*side+1][1]][0] == OBSTACLE:
             return 1
         return 0
         
-    def is_empty(grid,ant,side):
+    def is_empty(self,ant,side):
         radius = ant.get_radius()
-    #    print grid[ant.radius[2*side+1][0],ant.radius[2*side+1][1]]
-        if grid[radius[2*side+1][0],radius[2*side+1][1]][0] == EMPTY:
+    #    print self[ant.radius[2*side+1][0],ant.radius[2*side+1][1]]
+        if self[radius[2*side+1][0],radius[2*side+1][1]][0] == EMPTY:
             return 1
         return 0    
 
-    def dead_end(grid, ant):
-        if grid.is_empty(ant, UP) or grid.is_empty(ant, RIGHT) or grid.is_empty(ant, LEFT): 
+    def dead_end(self, ant):
+        if self.is_empty(ant, UP) or self.is_empty(ant, RIGHT) or self.is_empty(ant, LEFT): 
             return 0
         return 1
 
-    def is_ant_in_radius(grid, ant):
+    def is_ant_in_radius(self, ant):
         radius = ant.get_radius()
         for i in range(0,8):
-            if grid[radius[i]][1] == ANT:
+            if self[radius[i]][1] == ANT:
                 return 1
         return 0
 
-    def is_pheromone_in_radius(grid, ant):
+    def is_pheromone_in_radius(self, ant):
         radius = ant.get_radius()
         for i in [1,3,5,7]:
-            if (grid[radius[i]][2] != ant.get_symbol()) and (grid[radius[i]][2] != EMPTY) and (grid[radius[i]][2] != OBSTACLE):
+            if (self[radius[i]][2] != ant.get_symbol()) and (self[radius[i]][2] != EMPTY) and (self[radius[i]][2] != OBSTACLE):
                 return [radius[i],i]
         return 0
         
-    def step(grid, ant):
-        if grid.is_ant_in_radius(ant):
+    def step(self, ant):
+        if self.is_ant_in_radius(ant):
             return 1
-        ant_pheromone = grid.is_pheromone_in_radius(ant)
+        ant_pheromone = self.is_pheromone_in_radius(ant)
         
         if ant.get_state() == NOT_FOUND and ant_pheromone != 0:
     #        print "ant pheromone", ant_pheromone        
-            if ant.get_ID() > int(grid[ant_pheromone[0]][2]):
+            if ant.get_ID() > int(self[ant_pheromone[0]][2]):
     #            print "master"
                 ant.set_state(FOUND_PHEROMONE_MASTER)
                 side = (ant_pheromone[1]-1)/2
     #            print side
-                move(grid, ant, side, EMPTY)
+                move(self, ant, side, EMPTY)
             else:
     #            print "servant"
                 ant.set_state(FOUND_PHEROMONE_SERVANT)
-                follow_arrow(grid, ant)        
+                follow_arrow(self, ant)        
         elif ant.get_state() == NOT_FOUND:
-            if grid.dead_end(ant):
+            if self.dead_end(ant):
     #        set_orientation(ant, DOWN)
-                follow_arrow(grid, ant)
-            elif grid.is_empty(ant, RIGHT):
-                move(grid, ant, RIGHT, get_back_pheromone(ant,RIGHT))
-            elif grid.is_obstacle(ant, RIGHT) and grid.is_empty(ant, UP):
-        #        circle_obstacle(grid, ant, RIGHT)
-                move(grid, ant, UP, get_back_pheromone(ant, UP))
-            elif grid.is_obstacle(ant, UP):
-                move(grid, ant, LEFT, get_back_pheromone(ant, LEFT))
-            elif grid.is_empty(ant, UP):
-                move(grid, ant, UP, get_back_pheromone(ant,UP))
-            elif grid.is_empty(ant, LEFT):
-                move(grid, ant, LEFT, get_back_pheromone(ant,LEFT))
+                follow_arrow(self, ant)
+            elif self.is_empty(ant, RIGHT):
+                move(self, ant, RIGHT, get_back_pheromone(ant,RIGHT))
+            elif self.is_obstacle(ant, RIGHT) and self.is_empty(ant, UP):
+        #        circle_obstacle(self, ant, RIGHT)
+                move(self, ant, UP, get_back_pheromone(ant, UP))
+            elif self.is_obstacle(ant, UP):
+                move(self, ant, LEFT, get_back_pheromone(ant, LEFT))
+            elif self.is_empty(ant, UP):
+                move(self, ant, UP, get_back_pheromone(ant,UP))
+            elif self.is_empty(ant, LEFT):
+                move(self, ant, LEFT, get_back_pheromone(ant,LEFT))
             else:
                 print "problem?"
         elif ant.get_state() == FOUND_PHEROMONE_MASTER:
             location = ant.get_location()
-            if grid[location][0] == "H":
+            if self[location][0] == "H":
                 ant.set_state(FOUND_BASE)
             else:
-                follow_arrow(grid, ant)
+                follow_arrow(self, ant)
             #follow trail to other base
         elif ant.get_state() == FOUND_PHEROMONE_SERVANT:
-            follow_arrow(grid, ant)
+            follow_arrow(self, ant)
     #        print "following"
             #follow trail to base
         return 0
-
-    def render_cell(self, cell, c, i, j):
-        """ draw cell onto canvas """
-        BOARD_SIZE = self.size
-        # note that x and y are inverted, and that we put max_y - y to flip y
-        x, y = j, BOARD_SIZE[0] - i
-        grey = color.rgb(0.5,0.5,0.5)
-        back_arrow = cell.get_back_arrow()
-        cmds = []
-        if cell.get_ant_sym() == ANT:
-            from render_to_pdf import render_ant
-            # render the ant
-            cmds.append(('ant',
-                lambda c=c, x=x, y=y: render_ant(c, x, y)))
-        if back_arrow == START: # draw H
-            #c.text(j, BOARD_SIZE[1] - i, 'H')
-            cmds.append(('home',
-                lambda self=self, c=c, i=i, j=j: self.draw_home(
-                    c, i, j)))
-        elif back_arrow == OBSTACLE:
-            assert(cell.get_ant_sym() == back_arrow)
-            cmds.append(('obstacle',
-                lambda c=c, x=x, y=y: c.fill(
-                    path.rect(x - 0.25, y - 0.25, 0.5, 0.5))))
-        else:
-            back_arrow = cell.get_back_arrow()
-            if back_arrow in [UP_SYM, DOWN_SYM, LEFT_SYM, RIGHT_SYM]:
-                dx, dy = {UP_SYM: (0, -1), DOWN_SYM: (0, 1), LEFT_SYM: (-1, 0), RIGHT_SYM: (1, 0)}[back_arrow]
-                cmds.append(('arrow',
-                    lambda c=c, x=x, y=y, dx=dx, dy=dy: c.stroke(
-                    path.line(x, y, x + dx, y - dy), [deco.earrow(),
-                        style.linewidth(0.05)])))
-        return cmds
-
 
 def test():
     grid = init_grid()
