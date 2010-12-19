@@ -359,16 +359,11 @@ def follow_arrow (grid, ant):
         ant.set_location(radius[7])
     ant.set_radius()
     new_location = ant.get_location()
-#    print "new location is ", new_location
     grid[new_location].set_ant_sym(ANT)
     if is_ant_in_radius(grid, ant):
         return 1
     if DEBUG:
         print "ant location: ", ant.get_location()
-#    if old_location.arr_stack_size() > 1:
-#        old_location.pop_arr_stack()
-#    print ant.orientation
-#    time.sleep(2)
 
 
 def is_obstacle(grid, ant, side):
@@ -383,10 +378,7 @@ def is_blocked_side(grid, ant, side):
     radius = ant.get_radius()
     if DEBUG:
         print "blocked?", grid[radius[2*side+1][0],radius[2*side+1][1]].get_back_arrow()
-    #or grid[radius[2*side+1][0],radius[2*side+1][1]].get_back_arrow() == get_back_pheromone(side)
     cell = grid[radius[2*side+1][0],radius[2*side+1][1]]
-    #if cell.is_obstacle() and radius[2*side+1][0] > len(grid.grid):
-    #    import pdb; pdb.set_trace()
     return (cell.get_back_arrow() == EMPTY
         or cell.get_back_arrow() == get_back_pheromone(side)
         or cell.get_for_arrow() == get_back_pheromone(side)
@@ -471,13 +463,7 @@ def get_first(grid, ant):
             back_arrow = grid[radius[2*new_direction+1][0],radius[2*new_direction+1][1]].get_back_arrow()
             if back_arrow == EMPTY or back_arrow == get_back_pheromone(new_direction):
                 return new_direction
-#    for new_direction in range(0,4):
-#        new_direction = (new_direction+1)%4
-#        if not new_direction == back:
-#            back_arrow = grid[radius[2*new_direction+1][0],radius[2*new_direction+1][1]].get_back_arrow()
-#            if back_arrow == get_back_pheromone(new_direction):
-#                return new_direction
-#
+
 def get_backtrack(grid, ant):
     back = grid[ant.get_location()].get_back_arrow()
     if back == UP_SYM:
