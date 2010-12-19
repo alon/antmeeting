@@ -4,16 +4,6 @@
 import time
 from base import Grid, Ant
 
-class color(object):
-    def __init__(self, r, g, b):
-        self.r = r
-        self.g = g
-        self.b = b
-
-    @staticmethod
-    def rgb(r, g, b):
-        return color(r, g, b)
-
 # Parameters
 STEPS = 680
 
