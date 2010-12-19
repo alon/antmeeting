@@ -3,33 +3,9 @@ import AStar
 import run 
 import maps
 
-def chunk(n, ll):
-    return [l[:n] for l in ll[:n]]
-
-random_map_pair = (
-    lambda: grid_generators.grid_makers[0](size=(10,10), p_empty=0.9)
-    ,lambda defaults, size: defaults
-)
-
-def random_homes_pair_gen(N):
-    return (
-    lambda: chunk(N, maps.read_maze('maze_000.map'))
-    ,lambda defaults, size: [map(lambda s: random.randint(0, s-1), size) for i in xrange(len(defaults))]
-    )
-
 N=20 # limit screen size
 print "using N=%s" % N
-random_homes_pair = random_homes_pair_gen(N)
-
-def make_map_with_ants_on_vacancies(default_homes, make_map, make_homes):
-    zmap = make_map()
-    size = (len(zmap), len(zmap[0]))
-    homes = make_homes(defaults=default_homes, size=size)
-    while any([zmap[x][y] == '*' for x, y in homes]):
-        print "."
-        zmap = make_map()
-        homes = make_homes(defaults=default_homes, size=size)
-    return zmap, homes
+random_homes_pair = maps.random_homes_pair_gen(N)
 
 test_pair = (
     lambda : ['     ',' *** ', ' *** ', ' *** ', '     '],
@@ -63,7 +39,7 @@ def astar(homes, zmap):
 
 def randomize():
     make_map, make_homes = random_homes_pair
-    zmap, homes = make_map_with_ants_on_vacancies(
+    zmap, homes = maps.make_map_with_ants_on_vacancies(
         default_homes=[(2,2), (3,7)],
         make_map=make_map, make_homes=make_homes)
     return zmap, homes
@@ -76,17 +52,17 @@ class Data(object):
     pass
         
 def main():
-    for map, homes in generate_data():
+    for the_map, homes in generate_data():
         s = Data()
-        s.board_size = (len(map), len(map[0]))
+        s.board_size = (len(the_map), len(the_map[0]))
         s.homes = homes
         goa=run.GOARun('', board_size=s.board_size, ant_locations=s.homes)
         #goa.grid.display()
-        goa.set_map(map)
+        goa.set_map(the_map)
         #goa.grid.display()
         done = False
         s.steps = 0
-        shortest = astar(homes, map)
+        shortest = astar(homes, the_map)
         print "shortest path", shortest
         if shortest is None:
             break

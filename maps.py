@@ -14,3 +14,27 @@ def read_maze(fname):
     assert(all(map(lambda x: len(x) == width, rows)))
     return rows
 
+def make_map_with_ants_on_vacancies(default_homes, make_map, make_homes):
+    zmap = make_map()
+    size = (len(zmap), len(zmap[0]))
+    homes = make_homes(defaults=default_homes, size=size)
+    while any([zmap[x][y] == '*' for x, y in homes]):
+        print "."
+        zmap = make_map()
+        homes = make_homes(defaults=default_homes, size=size)
+    return zmap, homes
+
+def chunk(n, ll):
+    return [l[:n] for l in ll[:n]]
+
+random_map_pair = (
+    lambda: grid_generators.grid_makers[0](size=(10,10), p_empty=0.9)
+    ,lambda defaults, size: defaults
+)
+
+def random_homes_pair_gen(N):
+    return (
+    lambda: chunk(N, read_maze('maze_000.map'))
+    ,lambda defaults, size: [map(lambda s: random.randint(0, s-1), size) for i in xrange(len(defaults))]
+    )
+

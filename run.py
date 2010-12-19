@@ -5,6 +5,9 @@ import random
 import Final
 import constants
 import copy
+from maps import make_map_with_ants_on_vacancies, random_homes_pair_gen
+
+random_homes_pair = random_homes_pair_gen(10)
 
 class Run(object):
 
