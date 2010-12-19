@@ -1,6 +1,7 @@
 # TODO: linecache is not in shedskin
 #import linecache
 
+import random
 import my_linecache as linecache
 
 def read_maze(fname):
