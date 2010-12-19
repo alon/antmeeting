@@ -209,8 +209,11 @@ class Cell(object):
 
 
 class GOAGrid(Grid):
+    def make_cell(self):
+        return Cell(self)
+
     def __init__(self, board_size):
-        Grid.__init__(self, board_size = board_size, cell=Cell)
+        Grid.__init__(self, board_size = board_size)
 
     def get_ant_location(self, i):
         return self.ants[i].get_location()

@@ -11,19 +11,19 @@ class style(object):
 
 class Grid(object):
 
-    def __init__(self, board_size, cell):
+    def __init__(self, board_size):
         """cell - class of cell instance
         board_size - tuple = (number of cols, number of rows) NOTE: inverse of usual convention.
         """
         self.render_size = board_size
         self.size = self.render_size
-        self.grid = [[cell(self) for j in xrange(self.size[1])]
+        self.grid = [[self.make_cell() for j in xrange(self.size[1])]
                         for i in xrange(self.size[0])]
         self.ant_locations = [None, None]
         self.ant_homes = [None, None]
         self.ants = [None, None]
-        self.empty = cell(self) # default empty cell to return for out of range checks (TODO: make immutable)
-        self.obstacle = cell(self)
+        self.empty = self.make_cell() # default empty cell to return for out of range checks (TODO: make immutable)
+        self.obstacle = self.make_cell()
         self.obstacle.set_obstacle()
 
     def create_walls(self):
