@@ -103,14 +103,10 @@ class GOARun(ObstacleRun):
     FOUND_BASE = Final.FOUND_BASE
 
     def make_ants(self, ant_locations):
-        return [Final.GOAAnt(symbol=symbol, location=location, ID=the_id,
-                             state=Final.NOT_FOUND, bfs=Final.SEARCH)
-            for location, (symbol, the_id) in
-                zip(ant_locations,
-                    [(Final.ANT_SYMBOL_1, 1), (Final.ANT_SYMBOL_2, 2)])]
+        return Final.make_ants(ant_locations)
 
     def make_grid(self, board_size):
-        return Final.GOAGrid(board_size = board_size)
+        return Final.make_grid(board_size)
 
 if False:
     the_map = [[0]*n for i in xrange(10)]

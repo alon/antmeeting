@@ -490,3 +490,31 @@ def get_next(grid, ant):
         new_direction = (new_direction+1)%4
         count += 1
         assert(count<4)
+
+def make_ants(ant_locations):
+    return [GOAAnt(symbol=symbol, location=location, ID=the_id,
+                         state=NOT_FOUND, bfs=SEARCH)
+        for location, (symbol, the_id) in
+            zip(ant_locations, [(ANT_SYMBOL_1, 1), (ANT_SYMBOL_2, 2)])]
+
+def make_grid(board_size):
+    return GOAGrid(board_size = board_size)
+
+# for shedskin (TODO - get shedskin to use __all__)
+if False:
+    GOAAnt()
+    GOAAnt.get_symbol()
+    g=GOAGrid([10, 20])
+    g.create_walls()
+    g[5]
+    g.has_key(5)
+    g.display()
+    g.set_obstacles()
+    g.get_ant_locations()
+    g.has_ant(3, 5)
+    a=Ant()
+    a.print_radius()
+    r = Run()
+    r.make_ants([[10,10],[20,20]])
+    r.make_grid([5,5])
+
