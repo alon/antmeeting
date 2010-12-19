@@ -118,3 +118,13 @@ class GOARun(ObstacleRun):
 
     def make_grid(self, board_size):
         return Final.GOAGrid(board_size = board_size)
+
+if __name__ == '__main__':
+    make_map, make_homes = random_homes_pair
+    the_map, homes = make_map_with_ants_on_vacancies(
+        default_homes=[(2,2), (3,7)],
+        make_map=make_map, make_homes=make_homes)
+    board_size = (len(the_map), len(the_map[0]))
+    goa=GOARun('', board_size=board_size, ant_locations=homes)
+    goa.set_map(the_map)
+    goa.single_step()
