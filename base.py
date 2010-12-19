@@ -1,13 +1,3 @@
-class LineWidth(object):
-    pass
-
-class style(object):
-    @staticmethod
-    def linewidth(width):
-        lw = LineWidth()
-        lw.width = width
-        return lw
-
 
 class Grid(object):
 
@@ -54,24 +44,10 @@ class Grid(object):
             print " "
         print " "
 
-    # Drawing helpers (pyx)
-
-    def draw_home(self, c, i, j):
-        x, y = j, self.size[0] - i
-        s = 0.1
-        d = 0.4
-        lw = 0.05
-        slw = style.linewidth(0.05)
-        for px, py, dx, dy in [(x - d, y - d, 1, 1),
-            (x + d, y - d, -1, 1), (x - d, y + d, 1, -1),
-            (x + d, y + d, -1, -1)]:
-            c.stroke(path.line(px - lw*dx/2, py, px + s*dx, py), [slw])
-            c.stroke(path.line(px, py - lw*dy/2, px, py + s*dy), [slw])
-
     def set_obstacles(self, obst_iter):
         for x, y in obst_iter:
             self[x, y].set_obstacle()
-            
+
     def get_ant_locations(self):
         return [tuple(self.get_ant_location(i)) for i in xrange(2)]
 
@@ -86,4 +62,4 @@ class Ant(object):
         print radius[7],location,radius[3]
         print radius[6],radius[5],radius[4]
         print " "
-     
+
