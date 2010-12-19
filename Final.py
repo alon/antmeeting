@@ -132,7 +132,7 @@ class GOAAnt(Ant):
     def get_num_of_pheromones(self):
         return self._num_of_pheromones
         
-class cell(object):
+class Cell(object):
     def __init__(self, board):
         self.set_empty()
         self.board = board
@@ -221,7 +221,7 @@ class cell(object):
 
 class GOAGrid(Grid):
     def __init__(self, board_size):
-        Grid.__init__(self, board_size = board_size, cell=cell)
+        Grid.__init__(self, board_size = board_size, cell=Cell)
 
     def get_ant_location(self, i):
         return self.ants[i].get_location()
