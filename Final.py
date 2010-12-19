@@ -514,7 +514,6 @@ if False:
     g.has_ant(3, 5)
     a=Ant()
     a.print_radius()
-    r = Run()
-    r.make_ants([[10,10],[20,20]])
-    r.make_grid([5,5])
+    make_ants([[10,10],[20,20]])
+    make_grid([5,5])
 
