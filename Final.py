@@ -114,13 +114,13 @@ class GOAAnt(Ant):
         print radius[7],location,radius[3]
         print radius[6],radius[5],radius[4]
         print " "
-        
+
     def inc_num_of_pheromones(self):
         self._num_of_pheromones+=1
-        
+
     def get_num_of_pheromones(self):
         return self._num_of_pheromones
-        
+
 class Cell(object):
     def __init__(self, board):
         self.set_empty()
