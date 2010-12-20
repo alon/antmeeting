@@ -571,19 +571,28 @@ def make_grid(board_size):
     return GOAGrid(board_size = board_size)
 
 # for shedskin (TODO - get shedskin to use __all__)
-if False:
-    GOAAnt()
-    GOAAnt.get_symbol()
-    g=GOAGrid([10, 20])
-    g.create_walls()
-    g[5]
-    g.has_key(5)
-    g.display()
-    g.set_obstacles()
-    g.get_ant_locations()
-    g.has_ant(3, 5)
-    a=Ant()
-    a.print_radius()
-    make_ants([[10,10],[20,20]])
-    make_grid([5,5])
+if __name__ == '__main__':
+    locations = [(3, 3), (4, 4)]
+    ants = make_ants(locations)
+    get_for_pheromone(0)
+    get_back_pheromone(0)
+    a1=ants[0]
+    a1.get_ID()
+    a1.get_state()
+    a1.get_bfs()
+    a1.set_radius
+    a1.inc_num_of_pheromones()
+    a1.get_num_of_pheromones()
+    grid = make_grid([5,5])
+    ants[0].print_radius()
+    for i in xrange(len(ants)):
+        grid.place_ant_on_grid(ants[i], locations[i])
+    grid.create_walls() # from base.py
+    grid[(5,5)]
+    grid.has_key((5,5))
+    grid.set_obstacles([(1,2),(3,4)])
+    grid.get_ant_locations()
+    for ant in ants:
+        grid.step(ant)
+    grid.display()
 
