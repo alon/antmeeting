@@ -149,9 +149,11 @@ class GOAAnt(Ant):
         return self._radius
 
     def set_radius(self):
-        #012
-        #7 3
-        #654
+        """
+        012
+        7 3
+        654
+        """
         self._radius = (
             (self._location[0]-1,self._location[1]-1),
             (self._location[0]-1,self._location[1]),
