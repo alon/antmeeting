@@ -38,7 +38,8 @@ class Grid(object):
             return self.obstacle
         return row[x]
 
-    def has_key(self, (y, x)):
+    def has_key(self, k):
+        y, x = int(k[0]), int(k[1])
         return (0 <= y <= self.size[0]) and (0 <= x <= self.size[1])
 
     def display(self, renderer = None, step_num = None):
