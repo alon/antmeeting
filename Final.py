@@ -13,13 +13,10 @@ class Grid(object):
         """
         self.render_size = board_size
         self.size = self.render_size
-        self._grid = [[self.make_cell() for j in xrange(self.size[1])]
-                        for i in xrange(self.size[0])]
         self.ant_locations = [None, None]
         self.ant_homes = [None, None]
         self.ants = [None, None]
-        self.empty = self.make_cell() # default empty cell to return for out of range checks (TODO: make immutable)
-        self.obstacle = self.make_cell()
+        self.init_grid() # implement by inheritaince
         self.obstacle.set_obstacle()
 
     def create_walls(self):
@@ -274,11 +271,22 @@ class GOAGrid(Grid):
     def __init__(self, board_size):
         super(GOAGrid, self).__init__(board_size = board_size)
 
+    def init_grid(self):
+        self._grid = [[self.make_cell() for j in xrange(self.size[1])]
+                        for i in xrange(self.size[0])]
+        self.empty = self.make_cell() # default empty cell to return for out of range checks (TODO: make immutable)
+        self.obstacle = self.make_cell()
+
+    def get(self, k):
+        """ shedskin doesn't export this unless we explicitly define
+        the inheriting function """
+        return super(GOAGrid, self).get(k)
+
     def make_cell(self):
         return Cell(self)
 
-    def get_ant_location(self, i):
-        return self.ants[i].get_location()
+#    def get_ant_location(self, i):
+#        return self.ants[i].get_location()
 
     def place_ant_on_grid(self, ant, location):
         ant_i = int(ant.get_symbol()) - 1
