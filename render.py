@@ -36,6 +36,9 @@ red = (255, 0, 0)
 
 DIRECTIONS = RIGHT, DOWN, LEFT, UP = 0, pi/2, pi, pi*3/2
 
+def get_ant_locations(grid):
+    return [tuple(grid.ants[i].get_location()) for i in xrange(2)]
+
 class PyGameRenderer(Renderer):
     in_cell_poses = [(16, 16), (48, 48)]
 
@@ -152,10 +155,10 @@ class PyGameRenderer(Renderer):
         if title is not None:
             pygame.display.set_caption(title)
         w, h = grid.size
-        ant_locations = grid.get_ant_locations()
+        ant_locations = get_ant_locations(grid)
         for i in xrange(w):
             for j in xrange(h):
-                cell = grid.grid[j][i]
+                cell = grid._grid[j][i]
                 self._render_cell_contents(cell=cell, x=i, y=j)
                 #print "%2s|%5s" % (has_ant,
                 #      '%2s%2s' % tuple(' ' if x is None else ('%2.1f' % x) for x in dirs)),

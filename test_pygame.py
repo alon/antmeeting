@@ -7,7 +7,7 @@ from pygame import KEYDOWN
 import grid_generators
 import maps
 from render import PyGameRenderer
-from multiple_runs import (random_homes_pair_gen,
+from maps import (random_homes_pair_gen,
      make_map_with_ants_on_vacancies)
 
 def test_pygame(default_homes = [(2,2), (3,7)]):
