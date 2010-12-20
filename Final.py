@@ -303,7 +303,7 @@ class GOAGrid(Grid):
         elif ant.get_bfs()==SEARCH:
             ant_pheromone = is_pal_in_radius(self, ant)
             direction = self[ant.get_location()].get_direction()
-            if ant_pheromone != 0:
+            if ant_pheromone:
                 if ant.get_ID() > int(self[ant_pheromone[0]].get_ant_ID()):
                     ant.set_state(FOUND_PHEROMONE_MASTER)
                     side = (ant_pheromone[1]-1)/2
@@ -315,11 +315,12 @@ class GOAGrid(Grid):
             else:
                 direction = get_next(self, ant)
                 self[ant.get_location()].set_direction(direction)
-                self[ant.get_location()].set_for_arrow(get_for_pheromone(direction))
+                self[ant.get_location()].set_for_arrow(
+                    get_for_pheromone(direction))
                 move(self, ant, direction, get_back_pheromone(direction))
                 if is_ant_in_radius(self, ant):
                     return 1
-                if is_pal_in_radius(self, ant) != 0:
+                if is_pal_in_radius(self, ant):
                     ant.set_bfs(SEARCH)
 
         elif ant.get_bfs()==BACKTRACK:
@@ -344,6 +345,12 @@ class GOAGrid(Grid):
                 if self[ant.get_location()].get_back_arrow()==START or \
                     not get_first(self, ant) == new_direction:
                     ant.set_bfs(SEARCH)
+# unused according to shedskin
+
+#    def get_ant_home(self, i):
+#        return self.ant_homes[i]
+
+
 
 def get_back_pheromone(move):
     if move == 0:
@@ -424,13 +431,52 @@ def follow_arrow (grid, ant):
     if DEBUG:
         print "ant location: ", ant.get_location()
 
+# unused according to shedskin
 
-def is_obstacle(grid, ant, side):
-    radius = ant.get_radius()
-    if grid[radius[2*side+1][0],radius[2*side+1][1]].get_back_arrow() == OBSTACLE \
-        or grid[radius[2*side+1][0],radius[2*side+1][1]].get_back_arrow() == PHER_OBSTACLE:
-        return 1
-    return 0
+#def is_obstacle(grid, ant, side):
+#    radius = ant.get_radius()
+#    if grid[radius[2*side+1][0],radius[2*side+1][1]].get_back_arrow() == OBSTACLE \
+#        or grid[radius[2*side+1][0],radius[2*side+1][1]].get_back_arrow() == PHER_OBSTACLE:
+#        return 1
+#    return 0
+#
+#def is_empty(grid, ant, side):
+#    radius = ant.get_radius()
+#    x, y = radius[2*side+1]
+#    back_arrow = grid[x, y].get_back_arrow()
+#    #print "side = %s, x = %s, y = %s, back_arrow = %s, grid[x,y] = %s" % (side,
+#    #    x, y, back_arrow, grid[x, y])
+#    if back_arrow == EMPTY:
+#        return 1
+#    return 0
+#
+#def is_pheromone_in_side(grid, ant, side, pheromone, type):
+#    radius = ant.get_radius()
+#    if (type == PHER_ARROW):
+#        if grid[radius[side*2+1]].get_back_arrow() == pheromone:
+#            return 1
+#    elif (type == PHER_ANT):
+#        if grid[radius[side*2+1]].get_ant_sym() == pheromone:
+#            return 1
+#    elif (type == PHER_ID):
+#        if grid[radius[side*2+1]].get_ant_ID() == pheromone:
+#            return 1
+#    elif (type == PHER_FRINGE):
+#        if grid[radius[side*2+1]].get_for_arrow() == pheromone:
+#            return 1
+#    return 0
+#
+#def set_pheromone(grid, ant, pheromone, type):
+#    location = grid[ant.get_location()]
+#    if type == PHER_ARROW:
+#        grid[location] = (pheromone, grid[location][1], grid[location][2], grid[location][3])
+#    elif type == PHER_ANT:
+#        grid[location] = (grid[location][0], pheromone, grid[location][2], grid[location][3])
+#    elif type == PHER_ID:
+#        grid[location] = (grid[location][0], grid[location][1], pheromone, grid[location][3])
+#    elif type == PHER_FRINGE:
+#        grid[location] = (grid[location][0], grid[location][1], grid[location][2], pheromone)
+#
 
 def is_blocked_side(grid, ant, side):
     ant.set_radius()
@@ -456,16 +502,6 @@ def is_blocked(grid, ant):
         return 1
     return 0
 
-def is_empty(grid, ant, side):
-    radius = ant.get_radius()
-    x, y = radius[2*side+1]
-    back_arrow = grid[x, y].get_back_arrow()
-    #print "side = %s, x = %s, y = %s, back_arrow = %s, grid[x,y] = %s" % (side,
-    #    x, y, back_arrow, grid[x, y])
-    if back_arrow == EMPTY:
-        return 1
-    return 0
-
 def is_ant_in_radius(grid, ant):
     radius = ant.get_radius()
     for i in range(0,8):
@@ -478,38 +514,13 @@ def is_pal_in_radius(grid, ant):
     #012
     #7 3
     #654
-    for i in [1,3,5,7]:
-        if (grid[radius[i]].get_ant_ID() != ant.get_symbol()) and (grid[radius[i]].get_ant_ID() != EMPTY) \
-            and (grid[radius[i]].get_ant_ID() != OBSTACLE) and (grid[radius[i]].get_ant_ID() != PHER_OBSTACLE):
-            return [radius[i],i]
-    return 0
-
-def is_pheromone_in_side(grid, ant, side, pheromone, type):
-    radius = ant.get_radius()
-    if (type == PHER_ARROW):
-        if grid[radius[side*2+1]].get_back_arrow() == pheromone:
-            return 1
-    elif (type == PHER_ANT):
-        if grid[radius[side*2+1]].get_ant_sym() == pheromone:
-            return 1
-    elif (type == PHER_ID):
-        if grid[radius[side*2+1]].get_ant_ID() == pheromone:
-            return 1
-    elif (type == PHER_FRINGE):
-        if grid[radius[side*2+1]].get_for_arrow() == pheromone:
-            return 1
-    return 0
-
-def set_pheromone(grid, ant, pheromone, type):
-    location = grid[ant.get_location()]
-    if type == PHER_ARROW:
-        grid[location] = (pheromone, grid[location][1], grid[location][2], grid[location][3])
-    elif type == PHER_ANT:
-        grid[location] = (grid[location][0], pheromone, grid[location][2], grid[location][3])
-    elif type == PHER_ID:
-        grid[location] = (grid[location][0], grid[location][1], pheromone, grid[location][3])
-    elif type == PHER_FRINGE:
-        grid[location] = (grid[location][0], grid[location][1], grid[location][2], pheromone)
+    for i in [1, 3, 5, 7]:
+        if ((grid[radius[i]].get_ant_ID() != ant.get_symbol()) and
+            (grid[radius[i]].get_ant_ID() != EMPTY) and
+            (grid[radius[i]].get_ant_ID() != OBSTACLE) and
+            (grid[radius[i]].get_ant_ID() != PHER_OBSTACLE)):
+            return radius[i], i
+    return None
 
 def get_first(grid, ant):
     location = grid[ant.get_location()]
