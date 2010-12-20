@@ -31,8 +31,8 @@ class Run(object):
         ants = self.ants
         grid = self.grid
         for i, (ant, location) in enumerate(zip(ants, ant_locations)):
-            ant.set_location(location)
-            grid.place_ant_on_grid(ant, location)
+            ant.set_location(tuple(location))
+            grid.place_ant_on_grid(ant, tuple(location))
             #print "ant %s radius:" % (i + 1)
             #ant.print_radius()
 
@@ -111,10 +111,10 @@ class GOARun(ObstacleRun):
             ant_locations, obstacles, render_steps, draw_slide_title)
 
     def make_ants(self, ant_locations):
-        return Final.make_ants(ant_locations)
+        return Final.make_ants(tuple(map(tuple,ant_locations)))
 
     def make_grid(self, board_size):
-        return Final.make_grid(board_size)
+        return Final.make_grid(list(board_size))
 
 if False:
     the_map = [[0]*n for i in xrange(10)]

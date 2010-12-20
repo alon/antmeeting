@@ -584,7 +584,7 @@ def make_grid(board_size):
 
 # for shedskin (TODO - get shedskin to use __all__)
 if __name__ == '__main__':
-    locations = [(3, 3), (4, 4)]
+    locations = ((3, 3), (4, 4))
     ants = make_ants(locations)
     get_for_pheromone(0)
     get_back_pheromone(0)
@@ -592,7 +592,7 @@ if __name__ == '__main__':
     a1.get_ID()
     a1.get_state()
     a1.get_bfs()
-    a1.set_radius
+    a1.set_radius()
     a1.inc_num_of_pheromones()
     a1.get_num_of_pheromones()
     grid = make_grid([5,5])
