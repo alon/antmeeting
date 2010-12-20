@@ -103,6 +103,11 @@ class ObstacleRun(Run):
 class GOARun(ObstacleRun):
     FOUND_BASE = Final.FOUND_BASE
 
+    def __init__(self, pyx_output_filename, board_size, ant_locations=[],
+        obstacles = [], render_steps=[], draw_slide_title=False):
+        super(GOARun, self).__init__(pyx_output_filename, board_size,
+            ant_locations, obstacles, render_steps, draw_slide_title)
+
     def make_ants(self, ant_locations):
         return Final.make_ants(ant_locations)
 
