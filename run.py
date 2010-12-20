@@ -120,4 +120,4 @@ if False:
     board_size = (len(the_map), len(the_map[0]))
     goa=GOARun('', board_size=board_size, ant_locations=homes)
     goa.set_map(the_map)
-    goa.single_step()
+    done, num_of_pheromones = goa.single_step()
