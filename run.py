@@ -94,10 +94,10 @@ class ObstacleRun(Run):
         self.grid.ants = self.ants
         for l_num, l in enumerate(grid):
             for x, c in enumerate(l):
-                if self.grid[l_num, x].get_back_arrow() == Final.START:
+                if self.grid.get((l_num, x)).get_back_arrow() == Final.START:
                     continue
                 if c == '*':
-                    self.grid[l_num, x].set_obstacle()
+                    self.grid.get((l_num, x)).set_obstacle()
 
 
 class GOARun(ObstacleRun):
