@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import random
 import AStar
 import run 
 import maps
