@@ -110,24 +110,13 @@ num2arrow = dict([(v,k) for k,v in arrow2num.items()])
 
 class GOAAnt(Ant):
     def __init__(self, symbol, location, ID, state, bfs):
-        self._symbol = symbol
-        self._location = location
-        self._ID = ID
-        self._state = state
-        self._bfs = bfs
+        self.set_symbol(symbol)
+        self.set_location(location)
+        self.set_ID(ID)
+        self.set_state(state)
+        self.set_bfs(bfs)
         self._num_of_pheromones = 0
-        #012
-        #7 3
-        #654
-        self._radius = [(location[0]-1,location[1]-1),
-              (location[0]-1,location[1]),
-              (location[0]-1,location[1]+1),
-              (location[0],location[1]+1),
-              (location[0]+1,location[1]+1),
-              (location[0]+1,location[1]),
-              (location[0]+1,location[1]-1),
-              (location[0],location[1]-1)
-              ]
+        self.set_radius()
 
     def get_symbol(self):
         return self._symbol
@@ -163,22 +152,18 @@ class GOAAnt(Ant):
         return self._radius
 
     def set_radius(self):
-        self._radius[0] = (self._location[0]-1,self._location[1]-1)
-        self._radius[1] = (self._location[0]-1,self._location[1])
-        self._radius[2] = (self._location[0]-1,self._location[1]+1)
-        self._radius[3] = (self._location[0],self._location[1]+1)
-        self._radius[4] = (self._location[0]+1,self._location[1]+1)
-        self._radius[5] = (self._location[0]+1,self._location[1])
-        self._radius[6] = (self._location[0]+1,self._location[1]-1)
-        self._radius[7] = (self._location[0],self._location[1]-1)
-
-    def print_radius(self):
-        radius = self.get_radius()
-        location = self.get_location()
-        print radius[0],radius[1],radius[2]
-        print radius[7],location,radius[3]
-        print radius[6],radius[5],radius[4]
-        print " "
+        #012
+        #7 3
+        #654
+        self._radius = (
+            (self._location[0]-1,self._location[1]-1),
+            (self._location[0]-1,self._location[1]),
+            (self._location[0]-1,self._location[1]+1),
+            (self._location[0],self._location[1]+1),
+            (self._location[0]+1,self._location[1]+1),
+            (self._location[0]+1,self._location[1]),
+            (self._location[0]+1,self._location[1]-1),
+            (self._location[0],self._location[1]-1))
 
     def inc_num_of_pheromones(self):
         self._num_of_pheromones+=1
