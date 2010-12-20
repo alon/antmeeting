@@ -13,7 +13,7 @@ class Grid(object):
         """
         self.render_size = board_size
         self.size = self.render_size
-        self.grid = [[self.make_cell() for j in xrange(self.size[1])]
+        self._grid = [[self.make_cell() for j in xrange(self.size[1])]
                         for i in xrange(self.size[0])]
         self.ant_locations = [None, None]
         self.ant_homes = [None, None]
@@ -33,7 +33,7 @@ class Grid(object):
         y, x = int(k[0]), int(k[1])
         if y >= len(self._grid) or y < 0:
             return self.obstacle
-        row = self.grid[y]
+        row = self._grid[y]
         if x >= len(row) or x < 0:
             return self.obstacle
         return row[x]
