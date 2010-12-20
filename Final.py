@@ -171,6 +171,17 @@ class GOAAnt(Ant):
     def get_num_of_pheromones(self):
         return self._num_of_pheromones
 
+# unused according to shedskin
+
+#    def print_radius(self):
+#        radius = self.get_radius()
+#        location = self.get_location()
+#        print radius[0],radius[1],radius[2]
+#        print radius[7],location,radius[3]
+#        print radius[6],radius[5],radius[4]
+#        print " "
+
+
 class Cell(object):
     def __init__(self, board):
         self.set_empty()
@@ -178,9 +189,6 @@ class Cell(object):
 
     def __str__(self):
         return self.string_cell()
-
-    def is_empty(self):
-        return self._ant_sym != OBSTACLE
 
     def is_obstacle(self):
         return self._ant_sym == OBSTACLE
@@ -226,10 +234,6 @@ class Cell(object):
         self._direction = (self._direction+1)%4
         return self._direction
 
-    def dec_direction(self):
-        self._direction = (self._direction-1)%4
-        return self._direction
-
     def get_ant_sym(self):
         return self._ant_sym
 
@@ -238,9 +242,6 @@ class Cell(object):
 
     def get_ant_ID(self):
         return self._ant_ID
-
-    def set_ant_ID(self, ant_ID):
-        self._ant_ID = ant_ID
 
     def get_for_arrow(self):
         return self._for_arrow
@@ -251,25 +252,33 @@ class Cell(object):
     def get_back_arrow(self):
         return self._back_arrow
 
-    def set_back_arrow(self, back_arrow):
-        self._back_arrow = back_arrow
-
     def string_cell(self):
         return "".join((self._back_arrow, self._ant_sym, self._ant_ID, self._for_arrow))
 
+# Unused according to shedskin
+
+#    def is_empty(self):
+#        return self._ant_sym != OBSTACLE
+#
+#    def dec_direction(self):
+#        self._direction = (self._direction-1)%4
+#        return self._direction
+#
+#    def set_ant_ID(self, ant_ID):
+#        self._ant_ID = ant_ID
+#
+#    def set_back_arrow(self, back_arrow):
+#        self._back_arrow = back_arrow
 
 class GOAGrid(Grid):
+    def __init__(self, board_size):
+        super(GOAGrid, self).__init__(board_size = board_size)
+
     def make_cell(self):
         return Cell(self)
 
-    def __init__(self, board_size):
-        Grid.__init__(self, board_size = board_size)
-
     def get_ant_location(self, i):
         return self.ants[i].get_location()
-
-    def get_ant_home(self, i):
-        return self.ant_homes[i]
 
     def place_ant_on_grid(self, ant, location):
         ant_i = int(ant.get_symbol()) - 1
