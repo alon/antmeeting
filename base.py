@@ -50,9 +50,6 @@ class Grid(object):
     def get_ant_locations(self):
         return [tuple(self.get_ant_location(i)) for i in xrange(2)]
 
-    def has_ant(self, i, j):
-        return (i,j) in self.ant_locations()
-
 class Ant(object):
     def print_radius(self):
         radius = self.get_radius()
