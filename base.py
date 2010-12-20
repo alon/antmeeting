@@ -23,8 +23,7 @@ class Grid(object):
         self.create_obstacle(self.size[1], 0, 1, self.size[0])
 
     # Dictionary protocol
-    def __getitem__(self, k):
-        y, x = k
+    def __getitem__(self, (y, x)):
         if y >= len(self.grid) or y < 0:
             return self.obstacle
         row = self.grid[y]
@@ -32,8 +31,8 @@ class Grid(object):
             return self.obstacle
         return row[x]
 
-    def has_key(self, k):
-        return (0 <= k[0] <= self.size[0]) and (0 <= k[1] <= self.size[1])
+    def has_key(self, (y, x)):
+        return (0 <= y <= self.size[0]) and (0 <= x <= self.size[1])
 
     def display(self, renderer = None, step_num = None):
         if renderer:
