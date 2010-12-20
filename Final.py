@@ -29,8 +29,9 @@ class Grid(object):
         self.create_obstacle(self.size[1], 0, 1, self.size[0])
 
     # Dictionary protocol
-    def get(self, (y, x)):
-        if y >= len(self.grid) or y < 0:
+    def get(self, k):
+        y, x = int(k[0]), int(k[1])
+        if y >= len(self._grid) or y < 0:
             return self.obstacle
         row = self.grid[y]
         if x >= len(row) or x < 0:
