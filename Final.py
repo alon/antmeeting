@@ -53,8 +53,8 @@ class Grid(object):
         for x, y in obst_iter:
             self.get((x, y)).set_obstacle()
 
-    def get_ant_locations(self):
-        return [tuple(self.get_ant_location(i)) for i in xrange(2)]
+#    def get_ant_locations(self):
+#        return [tuple(self.get_ant_location(i)) for i in xrange(2)]
 
 class Ant(object):
     def print_radius(self):
@@ -593,7 +593,7 @@ if __name__ == '__main__':
     grid.get((5,5))
     grid.has_key((5,5))
     grid.set_obstacles([(1,2),(3,4)])
-    grid.get_ant_locations()
+    #grid.get_ant_locations()
     for ant in ants:
         grid.step(ant)
     grid.display()
