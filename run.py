@@ -54,7 +54,9 @@ class Run(object):
         for i in range(steps):
             if i in self.render_steps:
                 #import pdb; pdb.set_trace()
-                grid.display(renderer = renderer, step_num = i)
+                if renderer:
+                    renderer.render(grid, title=str(i))
+                grid.display(step_num = i)
             done = self.single_step()
             if done:
                 break
