@@ -14,15 +14,6 @@ class Run(object):
 
     # End Abstracts
 
-    def update_ant_locations(self, ant_locations):
-        ants = self.ants
-        grid = self.grid
-        for i, (ant, location) in enumerate(zip(ants, ant_locations)):
-            ant.set_location(location)
-            grid.place_ant_on_grid(ant, location)
-            #print "ant %s radius:" % (i + 1)
-            #ant.print_radius()
-
     def __init__(self, pyx_output_filename, board_size,
             ant_locations, render_steps = [], draw_slide_title=False):
         # create board, place walls and ants
@@ -35,6 +26,15 @@ class Run(object):
         # initialize pyx variables
         self.pyx_output_filename = pyx_output_filename
         self.render_steps = set(render_steps)
+
+    def update_ant_locations(self, ant_locations):
+        ants = self.ants
+        grid = self.grid
+        for i, (ant, location) in enumerate(zip(ants, ant_locations)):
+            ant.set_location(location)
+            grid.place_ant_on_grid(ant, location)
+            #print "ant %s radius:" % (i + 1)
+            #ant.print_radius()
 
     def single_step(self):
         num_of_pheromones = 0
@@ -69,15 +69,6 @@ class Run(object):
 
 class ObstacleRun(Run):
 
-    def set_map(self, grid):
-        self.grid.ants = self.ants
-        for l_num, l in enumerate(grid):
-            for x, c in enumerate(l):
-                if self.grid[l_num, x].get_back_arrow() == Final.START:
-                    continue
-                if c == '*':
-                    self.grid[l_num, x].set_obstacle()
-
     def __init__(self, pyx_output_filename, board_size, ant_locations=[],
         obstacles = [], render_steps=[], draw_slide_title=False):
         obstacles_is_a_map = len(obstacles) > 0 and obstacles[0][0] in ' *'
@@ -98,6 +89,16 @@ class ObstacleRun(Run):
         else:
             for x, y, lenx, leny in obstacles:
                 grid.create_obstacle(x, y, lenx, leny)
+
+    def set_map(self, grid):
+        self.grid.ants = self.ants
+        for l_num, l in enumerate(grid):
+            for x, c in enumerate(l):
+                if self.grid[l_num, x].get_back_arrow() == Final.START:
+                    continue
+                if c == '*':
+                    self.grid[l_num, x].set_obstacle()
+
 
 class GOARun(ObstacleRun):
     FOUND_BASE = Final.FOUND_BASE
