@@ -7,12 +7,13 @@ from pygame import KEYDOWN
 import grid_generators
 import maps
 from render import PyGameRenderer
-from maps import (random_homes_pair_gen,
+from maps import (random_homes_pair_gen, random_map_pair_gen,
      make_map_with_ants_on_vacancies)
 
 def test_pygame(default_homes = [(2,2), (3,7)]):
     #make_map, make_homes = random_map_pair
-    make_map, make_homes = random_homes_pair_gen(10)
+    #make_map, make_homes = random_homes_pair_gen(10)
+    make_map, make_homes = random_map_pair_gen(10,0.9)
     #make_map, make_homes = test_pair
     class Data(object):
         pass

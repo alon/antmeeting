@@ -3,7 +3,8 @@
 
 import random
 import my_linecache as linecache
-
+import grid_generators
+            
 def read_maze(fname):
     trans = dict(zip('.@', ' *'))
     lines = [''.join([trans.get(x, x) for x in l.strip()]) for l in linecache.getlines(fname)]
@@ -27,14 +28,24 @@ def make_map_with_ants_on_vacancies(default_homes, make_map, make_homes):
 def chunk(n, ll):
     return [l[:n] for l in ll[:n]]
 
-random_map_pair = (
-    lambda: grid_generators.grid_makers[0](size=(10,10), p_empty=0.9)
-    ,lambda defaults, size: defaults
+
+def random_homes(defaults, size):
+    return [map(lambda s: random.randint(0, s-1), size) for i in xrange(len(defaults))]
+
+random_maze_map_pair = (
+    lambda: grid_generators.maze_by_iterative_partition(size=(10,10), p_empty=0.9)
+    ,random_homes
 )
 
-def random_homes_pair_gen(N):
+def random_map_pair_gen(N, p_empty):
     return (
-    lambda: chunk(N, read_maze('maze_000.map'))
-    ,lambda defaults, size: [map(lambda s: random.randint(0, s-1), size) for i in xrange(len(defaults))]
+        lambda: grid_generators.grid_makers[0](size=(N,N), p_empty=p_empty)
+        ,random_homes
     )
 
+    
+def random_homes_pair_gen(N,maze):
+    return (
+        lambda: chunk(N, read_maze(maze)),
+        random_homes
+    )

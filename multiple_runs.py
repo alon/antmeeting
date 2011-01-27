@@ -6,7 +6,9 @@ import maps
 
 N=20 # limit screen size
 print "using N=%s" % N
-random_homes_pair = maps.random_homes_pair_gen(N)
+maze = 'maze_000.map'
+random_homes_pair = maps.random_homes_pair_gen(N,maze)
+random_map_pair = maps.random_map_pair_gen(N,0.7)
 
 test_pair = (
     lambda : ['     ',' *** ', ' *** ', ' *** ', '     '],
@@ -39,7 +41,7 @@ def astar(homes, zmap):
         return None
 
 def randomize():
-    make_map, make_homes = random_homes_pair
+    make_map, make_homes = random_map_pair
     zmap, homes = maps.make_map_with_ants_on_vacancies(
         default_homes=[(2,2), (3,7)],
         make_map=make_map, make_homes=make_homes)
@@ -53,6 +55,8 @@ class Data(object):
     pass
         
 def main():
+    f = open('testResults.txt', 'w')
+    f.write("Shortest path, Number of steps, Number of pheromones\n") 
     for the_map, homes in generate_data():
         s = Data()
         s.board_size = (len(the_map), len(the_map[0]))
@@ -71,6 +75,9 @@ def main():
         while 1:
             done, num_of_pheromones = goa.single_step()
             if done:
+                s = '%s, %s, %s\n' % (shortest, i, num_of_pheromones)
+                f.write(s)
+        
                 print "num of steps",i
                 print "num of pheromones", num_of_pheromones
                 break
@@ -79,7 +86,7 @@ def main():
         # measurable A
         # measurable B
         # record in db (file/sqlite)
-
+    f.close()
     # create report
 
 if __name__ == '__main__':

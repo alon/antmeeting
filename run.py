@@ -116,6 +116,21 @@ class GOARun(ObstacleRun):
     def make_grid(self, board_size):
         return Final.make_grid(list(board_size))
 
+class COARun(ObstacleRun):
+    FOUND_BASE = Final.FOUND_BASE
+
+    def __init__(self, pyx_output_filename, board_size, ant_locations=[],
+        obstacles = [], render_steps=[], draw_slide_title=False):
+        super(COARun, self).__init__(pyx_output_filename, board_size,
+            ant_locations, obstacles, render_steps, draw_slide_title)
+
+    def make_ants(self, ant_locations):
+        return MustMeet.make_ants(tuple(map(tuple,ant_locations)))
+
+    def make_grid(self, board_size):
+        return MustMeet.make_grid(list(board_size))
+
+        
 if False:
     the_map = [[0]*n for i in xrange(10)]
     homes=[(2,2), (3,7)],

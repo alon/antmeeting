@@ -1,5 +1,6 @@
 from random import random as randunity
 from random import sample
+import random
 
 def grid_from_iter(size, it):
     g = [[' ' for x in xrange(size[1])] for y in xrange(size[0])]
@@ -28,7 +29,34 @@ def make_constant_ratio(size, p_empty):
     for x, y in sample(possible, num_occupied):
         yield x, y
 
-grid_makers = [make_rand_cell, make_constant_ratio]
+def maze_by_iterative_partition(size,p_empty):
+    g = [[' ' for x in xrange(size[1])] for y in xrange(size[0])]
+    complexity = int(0.75*(5*(size[0]+size[1])))
+    density    = int((1-p_empty)*(size[0]//2*size[1]//2))  
+    for x in xrange(size[1]):
+        g[x][0] = g[x][size[1]-1] = "*"
+    for y in xrange(size[0]):
+        g[0][y] = g[size[0]-1][y] = "*"
+    for i in range(density):
+        x, y = random.randint(0,size[1])-1, random.randint(0,size[0])-1
+        print x, y
+        g[x][y] = "*"
+        for j in range(complexity):
+            neighbours = []
+            if x > 1:           neighbours.append( (x-2,y) )
+            if x < size[1]-2:   neighbours.append( (x+2,y) )
+            if y > 1:           neighbours.append( (x,y-2) )
+            if y < size[0]-2:   neighbours.append( (x,y+2) )
+            if len(neighbours):
+                x_,y_ = neighbours[random.randint(0,len(neighbours)-1)]
+                if g[x_][y_] == " ":
+                    g[x_][y_] == "*"
+                    g[x_+(x-x_)//2][y_+(y-y_)//2] = "*"
+                    x, y = x_, y_
+    # partition by iteration
+    return g
+        
+grid_makers = [make_rand_cell, make_constant_ratio, maze_by_iterative_partition]
 
 ##################################################################
 
