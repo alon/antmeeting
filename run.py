@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import Final
+import MustMeet
 
 class Run(object):
 

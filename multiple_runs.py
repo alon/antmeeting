@@ -61,7 +61,7 @@ def main():
         s = Data()
         s.board_size = (len(the_map), len(the_map[0]))
         s.homes = homes
-        goa=run.GOARun('', board_size=s.board_size, ant_locations=s.homes)
+        goa=run.COARun('', board_size=s.board_size, ant_locations=s.homes)
         #goa.grid.display()
         goa.set_map(the_map)
         #goa.grid.display()

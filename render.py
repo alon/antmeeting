@@ -100,7 +100,7 @@ class PyGameRenderer(Renderer):
     def _render_cell_contents(self, cell, x, y):
         F = self.F
         # perimeters
-        arr = cell.get_for_arrow()
+        #arr = cell.get_for_arrow()
         w = 1
         cw = self.cell_width
         left, top, right, bottom = x*cw, y*cw, (x+1)*cw, (y+1)*cw
@@ -125,7 +125,7 @@ class PyGameRenderer(Renderer):
         if cell.get_back_arrow() == F.START:
             square(color={1:blue, 2:red}[ant_id], marg=w)
         dirs = [self.arrow_cell2render[a] for a in
-                [cell.get_for_arrow(), cell.get_back_arrow()]]
+                [cell.get_back_arrow()]] #cell.get_for_arrow(), 
         frame(color=black, marg=w)
         if ant_id == None and cell.get_ant_sym() in '*':
             print "BUG"

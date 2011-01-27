@@ -77,19 +77,23 @@ def test_pygame(default_homes = [(2,2), (3,7)]):
                     import pdb; pdb.set_trace()
             pygame.display.set_caption(str(s.steps))
         if s.cont:
-            goa=run.GOARun('', board_size=s.board_size, ant_locations=s.homes)
+            #goa=run.GOARun('', board_size=s.board_size, ant_locations=s.homes)
+            coa=run.COARun('', board_size=s.board_size, ant_locations=s.homes)
             #goa.grid.display()
-            goa.set_map(s.zmap)
+            #goa.set_map(s.zmap)
+            coa.set_map(s.zmap)
             #goa.grid.display()
             done = False
             for i in xrange(s.steps):
-                done, number_of_phers = goa.single_step()
+                #done, number_of_phers = goa.single_step()
+                done, number_of_phers = coa.single_step()
                 if done:
                     done_step = i
                     break
             if done:
                 pygame.display.set_caption('MEETING - %d (%d)' % (done_step, s.steps))
-            renderer.render(goa.grid, 1)
+            #renderer.render(goa.grid, 1)
+            renderer.render(coa.grid, 1)
             pygame.time.delay(10)
 
     while s.cont:
