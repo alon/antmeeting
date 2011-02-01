@@ -15,8 +15,8 @@ class Run(object):
 
     # End Abstracts
 
-    def __init__(self, pyx_output_filename, board_size,
-            ant_locations, render_steps = [], draw_slide_title=False):
+    def __init__(self, board_size, ant_locations, number_of_active_ants=2,
+                 render_steps = [], draw_slide_title=False, pyx_output_filename=''):
         # create board, place walls and ants
         self.grid = self.make_grid(board_size=board_size)
         self.board_size = board_size
@@ -27,6 +27,7 @@ class Run(object):
         # initialize pyx variables
         self.pyx_output_filename = pyx_output_filename
         self.render_steps = set(render_steps)
+        self.number_of_active_ants = number_of_active_ants
 
     def update_ant_locations(self, ant_locations):
         ants = self.ants
@@ -41,6 +42,8 @@ class Run(object):
         num_of_pheromones = 0
         done = False
         for ant in self.ants:
+            if self.number_of_active_ants == 1 and ant != number_of_active_ants:
+                continue
             if ant is None: continue
             if ant.get_state() != self.FOUND_BASE and self.grid.step(ant) == 1:
                 done = True
@@ -106,10 +109,10 @@ class ObstacleRun(Run):
 class GOARun(ObstacleRun):
     FOUND_BASE = Final.FOUND_BASE
 
-    def __init__(self, pyx_output_filename, board_size, ant_locations=[],
-        obstacles = [], render_steps=[], draw_slide_title=False):
-        super(GOARun, self).__init__(pyx_output_filename, board_size,
-            ant_locations, obstacles, render_steps, draw_slide_title)
+    def __init__(self, board_size, number_of_active_ants, ant_locations=[],
+        obstacles = [], render_steps=[], draw_slide_title=False, pyx_output_filename=''):
+        super(GOARun, self).__init__(board_size, number_of_active_ants,
+            ant_locations, obstacles, render_steps, draw_slide_title, pyx_output_filename)
 
     def make_ants(self, ant_locations):
         return Final.make_ants(tuple(map(tuple,ant_locations)))
@@ -118,12 +121,12 @@ class GOARun(ObstacleRun):
         return Final.make_grid(list(board_size))
 
 class COARun(ObstacleRun):
-    FOUND_BASE = Final.FOUND_BASE
+    FOUND_BASE = MustMeet.FOUND_BASE
 
-    def __init__(self, pyx_output_filename, board_size, ant_locations=[],
-        obstacles = [], render_steps=[], draw_slide_title=False):
-        super(COARun, self).__init__(pyx_output_filename, board_size,
-            ant_locations, obstacles, render_steps, draw_slide_title)
+    def __init__(self, board_size, number_of_active_ants, ant_locations=[],
+        obstacles = [], render_steps=[], draw_slide_title=False, pyx_output_filename=''):
+        super(COARun, self).__init__(board_size, number_of_active_ants,
+            ant_locations, obstacles, render_steps, draw_slide_title, pyx_output_filename)
 
     def make_ants(self, ant_locations):
         return MustMeet.make_ants(tuple(map(tuple,ant_locations)))
