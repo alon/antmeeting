@@ -4,12 +4,11 @@ import AStar
 import run 
 import maps
 import sqlite3
+import os
+import cPickle
 
-N=20 # limit screen size
-print "using N=%s" % N
-mazes = ['maze_%03d.map' % i for i in xrange(5)]
-random_homes_pair = maps.random_homes_pair_gen(N,maze)
-random_map_pair = maps.random_map_pair_gen(N,0.7)
+#random_homes_pair = maps.random_homes_pair_gen(N,maze)
+#random_map_pair = maps.random_map_pair_gen(N,0.7)
 
 test_pair = (
     lambda : ['     ',' *** ', ' *** ', ' *** ', '     '],
@@ -50,14 +49,18 @@ def randomize():
 
 def generate_data():
     """ generate pairs of (map, homes) """
+    N=20 # limit screen size
+    print "using N=%s" % N
+    mazes = [maps.read_maze('maze_%03d.map' % i) for i in xrange(5)]
     for maze in mazes: #5 mazes, 5 10% map, 5 20% map, 5 30% map
        for i in xrange(100):
-            zmap, homes = maps.make_map_with_ants_on_vacancies(
+           zmap, homes = maps.make_map_with_ants_on_vacancies(
                 default_homes=[(2,2), (3,7)],
-                make_map=lambda maze=maze: maze, make_homes=make_homes)
+                make_map=lambda maze=maze: maze, make_homes=maps.random_homes)
+           yield zmap, homes
            #astar, ROA, ROA one ant, GOA, GOA one ant
            #    time, num of pheromones
-    
+
 class Data(object):
     pass
 
