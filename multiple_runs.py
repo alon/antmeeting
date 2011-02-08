@@ -49,17 +49,22 @@ def randomize():
 
 def generate_data():
     """ generate pairs of (map, homes) """
-    N=20 # limit screen size
+    N=8 # limit screen size
     print "using N=%s" % N
-    mazes = [maps.read_maze('maze_%03d.map' % i) for i in xrange(5)]
+    mazes = [maps.chunk(N, maps.read_maze('maze_%03d.map' % i)) for i in xrange(5)]
     for maze in mazes: #5 mazes, 5 10% map, 5 20% map, 5 30% map
-       for i in xrange(100):
-           zmap, homes = maps.make_map_with_ants_on_vacancies(
-                default_homes=[(2,2), (3,7)],
-                make_map=lambda maze=maze: maze, make_homes=maps.random_homes)
-           yield zmap, homes
-           #astar, ROA, ROA one ant, GOA, GOA one ant
-           #    time, num of pheromones
+        map_count = 0
+        while map_count < 100:
+            zmap, homes = maps.make_map_with_ants_on_vacancies(
+                 default_homes=[(2,2), (3,7)],
+                 make_map=lambda maze=maze: maze, make_homes=maps.random_homes)
+            a = astar(homes, zmap)
+            if a is None:
+                continue
+            yield zmap, homes
+            map_count += 1
+            #astar, ROA, ROA one ant, GOA, GOA one ant
+            #    time, num of pheromones
 
 class Data(object):
     pass
@@ -71,7 +76,7 @@ def single_run(the_map, homes):
     return a
 
 def single_run_alg_one_ant(run_func, the_map, homes):
-    single_run_alg(run_func, the_map, homes, number_of_active_ants=1)
+    return single_run_alg(run_func, the_map, homes, number_of_active_ants=1)
 
 def single_run_alg(run_func, the_map, homes, number_of_active_ants=2):
     s = Data()
@@ -89,11 +94,10 @@ def single_run_alg(run_func, the_map, homes, number_of_active_ants=2):
     #if shortest is None:
     #    break
     i=0        
-    while 1:
+    while True:
         done, num_of_pheromones = alg.single_step()
         if done:
             #s = '%s, %s, %s\n' % (shortest, i, num_of_pheromones)
-    
             return i, num_of_pheromones
             #print "num of steps",i
             #print "num of pheromones", num_of_pheromones      
@@ -127,7 +131,7 @@ def main():
             continue
         print "calculating %d/%d" % (i, len(map_home_pairs))
         results = single_run(the_map, homes)
-        con.execute('insert ?, ? into results', [params, cPickle.dumps(results)])
+        con.execute('insert into results values (?, ?)', [params, cPickle.dumps(results)])
         con.commit()
     # create report
 

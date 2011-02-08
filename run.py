@@ -75,8 +75,8 @@ class Run(object):
 
 class ObstacleRun(Run):
 
-    def __init__(self, pyx_output_filename, board_size, ant_locations=[],
-        obstacles = [], render_steps=[], draw_slide_title=False):
+    def __init__(self, pyx_output_filename, board_size, number_of_active_ants,
+        ant_locations=[], obstacles = [], render_steps=[], draw_slide_title=False):
         obstacles_is_a_map = len(obstacles) > 0 and obstacles[0][0] in ' *'
         if obstacles_is_a_map: # special case, we got a board rep
             ant_locations_d = {}
@@ -87,7 +87,7 @@ class ObstacleRun(Run):
             if len(ant_locations_d) > 0:
                 ant_locations = [ant_locations_d[k] for k in sorted(ant_locations_d.keys())]
             board_size = (len(obstacles[0]), len(obstacles))
-        Run.__init__(self, pyx_output_filename, board_size=board_size,
+        Run.__init__(self, pyx_output_filename=pyx_output_filename, board_size=board_size,
             ant_locations=ant_locations, render_steps=render_steps, draw_slide_title=draw_slide_title)
         grid = self.grid
         if obstacles_is_a_map:
@@ -111,8 +111,11 @@ class GOARun(ObstacleRun):
 
     def __init__(self, board_size, number_of_active_ants, ant_locations=[],
         obstacles = [], render_steps=[], draw_slide_title=False, pyx_output_filename=''):
-        super(GOARun, self).__init__(board_size, number_of_active_ants,
-            ant_locations, obstacles, render_steps, draw_slide_title, pyx_output_filename)
+        super(GOARun, self).__init__(board_size=board_size,
+            number_of_active_ants=number_of_active_ants,
+            ant_locations=ant_locations, obstacles=obstacles,
+            render_steps=render_steps, draw_slide_title=draw_slide_title,
+            pyx_output_filename=pyx_output_filename)
 
     def make_ants(self, ant_locations):
         return Final.make_ants(tuple(map(tuple,ant_locations)))
@@ -125,8 +128,9 @@ class COARun(ObstacleRun):
 
     def __init__(self, board_size, number_of_active_ants, ant_locations=[],
         obstacles = [], render_steps=[], draw_slide_title=False, pyx_output_filename=''):
-        super(COARun, self).__init__(board_size, number_of_active_ants,
-            ant_locations, obstacles, render_steps, draw_slide_title, pyx_output_filename)
+        super(COARun, self).__init__(board_size=board_size, number_of_active_ants=number_of_active_ants,
+            ant_locations=ant_locations, obstacles=obstacles, render_steps=render_steps,
+            draw_slide_title=draw_slide_title, pyx_output_filename=pyx_output_filename)
 
     def make_ants(self, ant_locations):
         return MustMeet.make_ants(tuple(map(tuple,ant_locations)))
