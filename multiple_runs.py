@@ -53,13 +53,21 @@ def generate_data():
     """ generate pairs of (map, homes) """
     N=8 # limit screen size
     print "using N=%s" % N
-    mazes = [maps.chunk(N, maps.read_maze('maze_%03d.map' % i)) for i in xrange(5)]
-    for maze in mazes: #5 mazes, 5 10% map, 5 20% map, 5 30% map
+    # 5 fixed mazes
+    fixed_mazes = [lambda maze=maps.chunk(N, maps.read_maze('maze_%03d.map' % i)): maze for i in xrange(5)]
+    # 5 10% map, 5 20% map, 5 30% map
+    fixed_percent = sum(
+        [
+            [lambda: maps.grid_generators.grid_makers[0](size=(N,N), p_empty=p_empty)
+                for p_empty in [p]*5]
+         for p in [0.9, 0.8, 0.7]
+        ],
+        [])
+    for maze_gen in fixed_mazes + fixed_percent:
         map_count = 0
         while map_count < 10:
             zmap, homes = maps.make_map_with_ants_on_vacancies(
-                 default_homes=[(2,2), (3,7)],
-                 make_map=lambda maze=maze: maze, make_homes=maps.random_homes)
+                 default_homes=[(2,2), (3,7)], make_map=maze_gen, make_homes=maps.random_homes)
             a = astar(homes, zmap)
             if a is None:
                 continue
