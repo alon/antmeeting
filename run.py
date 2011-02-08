@@ -15,7 +15,7 @@ class Run(object):
 
     # End Abstracts
 
-    def __init__(self, board_size, ant_locations, number_of_active_ants=2,
+    def __init__(self, board_size, ant_locations, number_of_active_ants,
                  render_steps = [], draw_slide_title=False, pyx_output_filename=''):
         # create board, place walls and ants
         self.grid = self.make_grid(board_size=board_size)
@@ -42,7 +42,7 @@ class Run(object):
         num_of_pheromones = 0
         done = False
         for ant in self.ants:
-            if self.number_of_active_ants == 1 and ant != number_of_active_ants:
+            if self.number_of_active_ants == 1 and ant.get_ID() != self.number_of_active_ants:
                 continue
             if ant is None: continue
             if ant.get_state() != self.FOUND_BASE and self.grid.step(ant) == 1:
@@ -88,7 +88,8 @@ class ObstacleRun(Run):
                 ant_locations = [ant_locations_d[k] for k in sorted(ant_locations_d.keys())]
             board_size = (len(obstacles[0]), len(obstacles))
         Run.__init__(self, pyx_output_filename=pyx_output_filename, board_size=board_size,
-            ant_locations=ant_locations, render_steps=render_steps, draw_slide_title=draw_slide_title)
+            ant_locations=ant_locations, render_steps=render_steps, draw_slide_title=draw_slide_title,
+            number_of_active_ants=number_of_active_ants)
         grid = self.grid
         if obstacles_is_a_map:
             self.set_map(obstacles)

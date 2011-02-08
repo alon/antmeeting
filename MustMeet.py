@@ -461,11 +461,10 @@ def is_pal_in_radius(grid, ant):
 
 def is_ant_in_radius(grid, ant):
     radius = ant.get_radius()
-    for i in range(0,8):
+    for i in range(0, 8):
         if grid.get(radius[i]).get_ant_sym() == ANT:
-            return 1
-    return 0
-
+            return True
+    return False
 
 def make_ants(ant_locations):
     return [COAAnt(symbol=symbol, location=location, ID=the_id,

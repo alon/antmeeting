@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
 import AStar
-import run 
+import run
 import maps
 import sqlite3
 import os
 import cPickle
+
+MAPS_HOMES_PICKLE_FILENAME='maps_homes.pickle'
 
 #random_homes_pair = maps.random_homes_pair_gen(N,maze)
 #random_map_pair = maps.random_map_pair_gen(N,0.7)
@@ -54,7 +56,7 @@ def generate_data():
     mazes = [maps.chunk(N, maps.read_maze('maze_%03d.map' % i)) for i in xrange(5)]
     for maze in mazes: #5 mazes, 5 10% map, 5 20% map, 5 30% map
         map_count = 0
-        while map_count < 100:
+        while map_count < 10:
             zmap, homes = maps.make_map_with_ants_on_vacancies(
                  default_homes=[(2,2), (3,7)],
                  make_map=lambda maze=maze: maze, make_homes=maps.random_homes)
@@ -93,24 +95,22 @@ def single_run_alg(run_func, the_map, homes, number_of_active_ants=2):
     #print "shortest path", shortest
     #if shortest is None:
     #    break
-    i=0        
+    i=0
     while True:
         done, num_of_pheromones = alg.single_step()
         if done:
             #s = '%s, %s, %s\n' % (shortest, i, num_of_pheromones)
             return i, num_of_pheromones
             #print "num of steps",i
-            #print "num of pheromones", num_of_pheromones      
-        i+=1 
-  
-MAPS_HOMES_PICKLE_FILENAME='maps_homes.pickle'
-    
+            #print "num of pheromones", num_of_pheromones
+        i+=1
+
 def make_random_map_homes_file():
     print "making list of random maps and homes into %s" % MAPS_HOMES_PICKLE_FILENAME
     pairs = list(generate_data())
     with open(MAPS_HOMES_PICKLE_FILENAME, 'w+') as f:
         cPickle.dump(pairs, f)
-    
+
 def make_params(the_map, homes):
     # IMPORTANT NOTE: don't change this, it is the key to the results database
     return cPickle.dumps((the_map, homes))
