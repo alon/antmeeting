@@ -62,8 +62,8 @@ class Ant(object):
 
 ################################################################################
 
-    
-    
+
+
 # Parameters
 #BOARD_SIZE = (20, 19)
 #STARTING_LOCATION_1 = (8,8)
@@ -115,8 +115,8 @@ class COAAnt(Ant):
               (location[0]+1,location[1]),
               (location[0]+1,location[1]-1),
               (location[0],location[1]-1)
-              ] 
-            
+              ]
+
     def inc_num_of_pheromones(self):
         self._num_of_pheromones+=1
 
@@ -126,37 +126,37 @@ class COAAnt(Ant):
 
     def get_symbol(self):
         return self._symbol
-            
+
     def set_symbol(self, symbol):
         self._symbol = symbol
-    
+
     def get_orientation(self):
         return self._orientation
-    
+
     def set_orientation(self, orientation):
         self._orientation = orientation
-    
+
     def get_location(self):
         return self._location
-    
+
     def set_location(self, location):
         self._location = location
-        
+
     def get_ID(self):
         return self._ID
-    
+
     def set_ID(self, ID):
         self._ID = ID
-    
+
     def get_state(self):
         return self._state
-    
+
     def set_state(self, state):
         self._state = state
-        
+
     def get_radius(self):
         return self._radius
-    
+
     def set_radius(self):
         self._radius[0 - 2*self._orientation % 8] = (self._location[0]-1,self._location[1]-1)
         self._radius[1 - 2*self._orientation % 8] = (self._location[0]-1,self._location[1])
@@ -176,16 +176,16 @@ def force_orientation(ant,side):
     orientation = ant.get_orientation()
     ant.set_orientation(side)
     ant.set_radius()
-    
-# the actual movement of the ant 
+
+# the actual movement of the ant
 def move(grid, ant, side, pheromone):
     radius = ant.get_radius()
     location = ant.get_location()
     symbol = ant.get_symbol()
-    old_cell = grid.get(location) 
+    old_cell = grid.get(location)
     old_cell.set_ant_sym(EMPTY)
     new_location = radius[2*side + 1]
-    ant.set_location(new_location)        
+    ant.set_location(new_location)
     set_orientation(ant,side)
     if pheromone == EMPTY:
         grid.get(new_location).set_ant_sym(ANT)
@@ -194,8 +194,8 @@ def move(grid, ant, side, pheromone):
         grid.get(new_location).set_cell(
             back_arrow=pheromone, ant_sym=ANT,
             ant_ID=symbol)
-    
-# Backtracking         
+
+# Backtracking
 def follow_arrow (grid, ant):
     radius = ant.get_radius()
     orientation = ant.get_orientation()
@@ -222,8 +222,8 @@ def follow_arrow (grid, ant):
     grid.get(new_location).set_ant_sym(ANT)
     if is_ant_in_radius(grid, ant):
         return 1
-            
- 
+
+
 def get_back_pheromone(ant, move):
     orientation = ant.get_orientation()
     if (orientation + move) % 4 == 0:
@@ -233,12 +233,12 @@ def get_back_pheromone(ant, move):
     elif (orientation + move) % 4 == 2:
         return UP_SYM
     elif (orientation + move) % 4 == 3:
-        return RIGHT_SYM           
+        return RIGHT_SYM
 #def is_pheromone_right(grid,ant):
 
-#def circle_obstacle(grid, ant, side):    
+#def circle_obstacle(grid, ant, side):
 #    while is_obstacle(grid, ant, side) and is_empty(grid, ant, (side - 1 % 4)):
-#        move(grid, ant, (side - 1 % 4), get_back_pheromone(ant, (side - 1 % 4)))    
+#        move(grid, ant, (side - 1 % 4), get_back_pheromone(ant, (side - 1 % 4)))
 
 def empty(clazz):
     return clazz((EMPTY, EMPTY, EMPTY))
@@ -326,7 +326,7 @@ class COAGrid(Grid):
                         for i in xrange(self.size[0])]
         self.empty = self.make_cell() # default empty cell to return for out of range checks (TODO: make immutable)
         self.obstacle = self.make_cell()
-        
+
     #def __setitem__(self, key, new_item):
     #   self.grid[key[0]][key[1]] = cell(new_item)
 
@@ -337,7 +337,7 @@ class COAGrid(Grid):
 
     def make_cell(self):
         return Cell(self)
-        
+
     def create_obstacle(self, x, y, lenx, leny):
         for i in range(y, y+leny):
             for j in range(x, x+lenx):
@@ -357,15 +357,8 @@ class COAGrid(Grid):
         self.ant_locations[ant_i] = location
         self.ant_homes[ant_i] = location
         self.ants[ant_i] = ant
-    
-    def is_pheromone_in_radius(self, ant):
-        radius = ant.get_radius()
-        for i in [1,3,5,7]:
-            if (self[radius[i]][2] != ant.get_symbol()) and (self[radius[i]][2] != EMPTY) and (self[radius[i]][2] != OBSTACLE):
-                return [radius[i],i]
-        return 0
-        
-    def step(self, ant):        
+
+    def step(self, ant):
         old_location = self.get(ant.get_location())
         if is_ant_in_radius(self, ant):
             return 1
@@ -405,10 +398,10 @@ class COAGrid(Grid):
                     move(self, ant, LEFT, get_back_pheromone(ant,LEFT))
                 else:
                     print "problem?"
-                    
-"""    
+
+"""
         if ant.get_state() == NOT_FOUND and ant_pheromone != 0:
-    #        print "ant pheromone", ant_pheromone        
+    #        print "ant pheromone", ant_pheromone
             if ant.get_ID() > int(self[ant_pheromone[0]][2]):
     #            print "master"
                 ant.set_state(FOUND_PHEROMONE_MASTER)
@@ -418,7 +411,7 @@ class COAGrid(Grid):
             else:
     #            print "servant"
                 ant.set_state(FOUND_PHEROMONE_SERVANT)
-                follow_arrow(self, ant)        
+                follow_arrow(self, ant)
 
                 elif ant.get_state() == FOUND_PHEROMONE_MASTER:
             location = ant.get_location()
@@ -439,20 +432,20 @@ def is_obstacle(grid,ant,side):
     if grid.get((radius[2*side+1][0],radius[2*side+1][1])).get_back_arrow() == OBSTACLE:
         return 1
     return 0
-    
+
 def is_empty(grid,ant,side):
     radius = ant.get_radius()
 #    print self[ant.radius[2*side+1][0],ant.radius[2*side+1][1]]
     if grid.get((radius[2*side+1][0],radius[2*side+1][1])).get_back_arrow() == EMPTY:
         return 1
-    return 0    
+    return 0
 
 def dead_end(grid, ant):
-    if is_empty(grid,ant, UP) or is_empty(grid,ant, RIGHT) or is_empty(grid,ant, LEFT): 
+    if is_empty(grid,ant, UP) or is_empty(grid,ant, RIGHT) or is_empty(grid,ant, LEFT):
         return 0
     return 1
 
-    
+
 def is_pal_in_radius(grid, ant):
     radius = ant.get_radius()
     #012
@@ -473,7 +466,7 @@ def is_ant_in_radius(grid, ant):
             return 1
     return 0
 
-        
+
 def make_ants(ant_locations):
     return [COAAnt(symbol=symbol, location=location, ID=the_id,
                          state=SEARCH)
@@ -482,7 +475,7 @@ def make_ants(ant_locations):
 
 def make_grid(board_size):
     return COAGrid(board_size = board_size)
-        
+
 def test():
     locations = ((3, 3), (6, 6))
     ants = make_ants(locations)
@@ -492,20 +485,28 @@ def test():
     a1.get_state()
     a1.set_radius()
     a1.inc_num_of_pheromones()
+    a1.get_num_of_pheromones()
+    a1.set_symbol(ANT_SYMBOL_2)
+    a1.set_ID(1)
+
     grid = make_grid([10,10])
+    cell = grid.get(a1.get_location())
+    cell.is_obstacle()
+    cell.set_pher_obstacle()
     ants[0].print_radius()
     for i in xrange(len(ants)):
         grid.place_ant_on_grid(ants[i], locations[i])
+    grid.get_ant_location(1)
+    grid.get_ant_home(1)
     grid.create_walls() # from base.py
     grid.get((5,5))
     grid.has_key((5,5))
     grid.set_obstacles([(1,2),(3,4)])
     #grid.get_ant_locations()
-    for i in xrange(10):    
+    for i in xrange(10):
         for ant in ants:
             grid.step(ant)
         grid.display()
 
 if __name__ == '__main__':
     test()
-
