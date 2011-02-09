@@ -43,7 +43,7 @@ def random_map_pair_gen(N, p_empty):
         ,random_homes
     )
 
-def random_homes_pair_gen(N,maze):
+def random_homes_pair_gen(N, maze):
     return (
         lambda: chunk(N, read_maze(maze)),
         random_homes

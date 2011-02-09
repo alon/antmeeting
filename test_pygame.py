@@ -7,6 +7,7 @@ from pygame import KEYDOWN
 import grid_generators
 import maps
 from render import PyGameRenderer
+import show_results
 from maps import (random_homes_pair_gen, random_map_pair_gen,
      make_map_with_ants_on_vacancies)
 
@@ -55,7 +56,12 @@ def test_pygame(default_homes = [(2,2), (3,7)]):
         else:
             print "no path"
 
-    randomize(None)
+    unfinished = show_results.get_unfinished()
+    if unfinished:
+        s.zmap, s.homes = unfinished
+        s.board_size = (len(s.zmap), len(s.zmap[0]))
+    else:
+        randomize(None)
     keys = {'a': next_step, 'z': prev_step,
             'r': randomize, 's': astar}
     def singlestep():
@@ -78,7 +84,7 @@ def test_pygame(default_homes = [(2,2), (3,7)]):
             pygame.display.set_caption(str(s.steps))
         if s.cont:
             #goa=run.GOARun('', board_size=s.board_size, ant_locations=s.homes)
-            coa=run.COARun('', board_size=s.board_size, ant_locations=s.homes)
+            coa=run.COARun(pyx_output_filename='', board_size=s.board_size, ant_locations=s.homes, number_of_active_ants=2)
             #goa.grid.display()
             #goa.set_map(s.zmap)
             coa.set_map(s.zmap)

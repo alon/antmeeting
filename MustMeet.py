@@ -203,19 +203,19 @@ def follow_arrow (grid, ant):
     old_location = grid.get(location)
     grid.get(location).set_ant_sym(EMPTY)
     if grid.get(location).get_back_arrow() == UP_SYM:
-#        print "up"
+        #print "up",ant.get_ID()
         ant.set_location(radius[(9 - 2*(orientation)) % 8])
         force_orientation(ant,UP)
     elif grid.get(location).get_back_arrow() == RIGHT_SYM:
-#        print "right"
+        #print "right",ant.get_ID()
         ant.set_location(radius[(11 - 2*(orientation)) % 8])
         force_orientation(ant,RIGHT)
     elif grid.get(location).get_back_arrow() == DOWN_SYM:
-#        print "down"
+        #print "down",ant.get_ID()
         ant.set_location(radius[(13 - 2*(orientation)) % 8])
         force_orientation(ant,DOWN)
     elif grid.get(location).get_back_arrow() == LEFT_SYM:
-#        print "left"
+        #print "left",ant.get_ID()
         ant.set_location(radius[(7 - 2*(orientation)) % 8])
         force_orientation(ant,LEFT)
     new_location = ant.get_location()

@@ -13,10 +13,25 @@ def line_with_homes(y, line, homes):
 def map_with_homes(zmap, homes):
     return [line_with_homes(y, line, homes) for y, line in enumerate(zmap)]
 
-con = sqlite3.connect('ant_results.sqlite3')
-c = con.cursor()
-all_results = [map(lambda u: cPickle.loads(str(u)), x) for x in c.execute('select * from results').fetchall()]
-print '\n'.join('%s\nresults: %s' % (
-    '\n'.join(map_with_homes(zmap, homes)), results)
-    for (zmap, homes), results in all_results)
+def show_all_results():
+    con = sqlite3.connect('ant_results.sqlite3')
+    c = con.cursor()
+    all_results = [map(lambda u: cPickle.loads(str(u)), x) for x in c.execute('select * from results').fetchall()]
+    print '\n'.join('%s\nresults: %s' % (
+        '\n'.join(map_with_homes(zmap, homes)), results)
+        for (zmap, homes), results in all_results)
 
+def get_unfinished():
+    con = sqlite3.connect('ant_results.sqlite3')
+    c = con.cursor()
+    finished = [cPickle.loads(str(u[0])) for u in c.execute('select params from results ').fetchall()]
+    with open('maps_homes.pickle') as fd:
+        maps_homes = cPickle.load(fd)
+    for map_homes in maps_homes:
+        if map_homes not in finished:
+            print "unfinshed:\n%s" % '\n'.join(map_with_homes(*map_homes))
+            return map_homes
+    return None
+
+if __name__ == '__main__':
+    show_all_results()
