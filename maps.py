@@ -13,7 +13,7 @@ def read_maze(fname):
     assert(len(lines[4:]) == height)
     rows = lines[4:]
     assert(all(map(lambda x: len(x) == width, rows)))
-    return rows
+    return list(reversed(rows))
 
 def make_map_with_ants_on_vacancies(default_homes, make_map, make_homes):
     zmap = make_map()
@@ -48,3 +48,9 @@ def random_homes_pair_gen(N, maze):
         lambda: chunk(N, read_maze(maze)),
         random_homes
     )
+
+if __name__=='__main__':
+    import sys, os
+    m = read_maze('maze_002.map')
+    print ''.join(m[0])
+    print ''.join(m[-1])

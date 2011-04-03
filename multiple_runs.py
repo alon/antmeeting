@@ -8,7 +8,8 @@ import os
 import cPickle
 
 MAPS_HOMES_PICKLE_FILENAME='maps_homes.pickle'
-
+N=12 # limit screen size
+#MAX_STEPS=N*N*N    
 #random_homes_pair = maps.random_homes_pair_gen(N,maze)
 #random_map_pair = maps.random_map_pair_gen(N,0.7)
 
@@ -49,9 +50,19 @@ def randomize():
         make_map=make_map, make_homes=make_homes)
     return zmap, homes
 
+def extend_and_add_trap_to_map(m):
+    new_map = m + ([[' ' for i in range(len(m[0]))] for j in range(len(m))])
+    i = 0
+    for i in range(len(m[0])):
+        new_map[len(m) + 1][i] = ('*' if i != len(m[0])/2 else ' ')
+    return new_map
+    
+def map_tester():
+    the_map = extend_and_add_trap_to_map([[' ' for i in range(10)] for j in range(10)])
+    print '\n'.join('%d: %r' % (i, ''.join(l)) for i,l in enumerate(the_map))
+
 def generate_data():
     """ generate pairs of (map, homes) """
-    N=8 # limit screen size
     print "using N=%s" % N
     # 5 fixed mazes
     fixed_mazes = [lambda maze=maps.chunk(N, maps.read_maze('maze_%03d.map' % i)): maze for i in xrange(5)]
@@ -70,8 +81,10 @@ def generate_data():
                  default_homes=[(2,2), (3,7)], make_map=maze_gen, make_homes=maps.random_homes)
             a = astar(homes, zmap)
             if a is None:
-                continue
-            yield zmap, homes
+                continue  
+            print "ASTAR: ", a
+            xmap = extend_and_add_trap_to_map(zmap)
+            yield xmap, homes
             map_count += 1
             #astar, ROA, ROA one ant, GOA, GOA one ant
             #    time, num of pheromones
@@ -112,6 +125,7 @@ def single_run_alg(run_func, the_map, homes, number_of_active_ants=2):
             #print "num of steps",i
             #print "num of pheromones", num_of_pheromones
         i+=1
+    return None,None
 
 def make_random_map_homes_file():
     print "making list of random maps and homes into %s" % MAPS_HOMES_PICKLE_FILENAME
@@ -145,3 +159,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    #map_tester()

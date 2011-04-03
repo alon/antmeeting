@@ -84,7 +84,7 @@ def test_pygame(default_homes = [(2,2), (3,7)]):
             pygame.display.set_caption(str(s.steps))
         if s.cont:
             #goa=run.GOARun('', board_size=s.board_size, ant_locations=s.homes)
-            coa=run.COARun(pyx_output_filename='', board_size=s.board_size, ant_locations=s.homes, number_of_active_ants=2)
+            coa=run.COARun(pyx_output_filename='', board_size=s.board_size, ant_locations=s.homes, number_of_active_ants=1)
             #goa.grid.display()
             #goa.set_map(s.zmap)
             coa.set_map(s.zmap)

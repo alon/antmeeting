@@ -12,7 +12,7 @@ class Run(object):
 
     def make_grid(self, board_size):
         raise NotImplemented
-
+    
     # End Abstracts
 
     def __init__(self, board_size, ant_locations, number_of_active_ants,
@@ -45,6 +45,12 @@ class Run(object):
             if self.number_of_active_ants == 1 and ant.get_ID() != self.number_of_active_ants:
                 continue
             if ant is None: continue
+            is_coa = self.__class__ is COARun
+            N = self.board_size
+            if is_coa and ant.get_location()[0]>=N[1]+1:
+                #import pdb; pdb.set_trace()
+                done = True
+                num_of_pheromones = -1
             if ant.get_state() != self.FOUND_BASE and self.grid.step(ant) == 1:
                 done = True
                 num_of_pheromones = ant.get_num_of_pheromones()
@@ -57,7 +63,6 @@ class Run(object):
         done = False
         for i in range(steps):
             if i in self.render_steps:
-                #import pdb; pdb.set_trace()
                 if renderer:
                     renderer.render(grid, title=str(i))
                 grid.display(step_num = i)

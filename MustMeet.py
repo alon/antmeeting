@@ -383,8 +383,10 @@ class COAGrid(Grid):
                     ant.set_state(FOUND_PHER)
             else:#elif ant.get_state() == NOT_FOUND:
                 if dead_end(self,ant):
-        #        set_orientation(ant, DOWN)
-                    follow_arrow(self, ant)
+                    if old_location.get_back_arrow()==START:
+                        set_orientation(ant, DOWN)
+                    else:
+                        follow_arrow(self, ant)
                 elif is_empty(self,ant, RIGHT):
                     move(self, ant, RIGHT, get_back_pheromone(ant,RIGHT))
                 elif is_obstacle(self,ant, RIGHT) and is_empty(self,ant, UP):
