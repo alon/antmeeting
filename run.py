@@ -58,7 +58,7 @@ class Run(object):
 
     def run(self, steps, renderer=None, post_step = lambda: None):
         grid, ants = self.grid, self.ants
-        grid.display()
+        #grid.display()
         FOUND_BASE = self.FOUND_BASE
         done = False
         for i in range(steps):

@@ -1,0 +1,3 @@
+pypy: 91500
+python no shedskin: 214580.035009
+python with shedskin: 57280.9251809

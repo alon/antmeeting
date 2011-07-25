@@ -6,9 +6,12 @@ import maps
 import sqlite3
 import os
 import cPickle
+import argparse
+import sys
+import signal
 
 MAPS_HOMES_PICKLE_FILENAME='maps_homes.pickle'
-N=12 # limit screen size
+#N=100 # limit screen size
 #MAX_STEPS=N*N*N    
 #random_homes_pair = maps.random_homes_pair_gen(N,maze)
 #random_map_pair = maps.random_map_pair_gen(N,0.7)
@@ -61,7 +64,7 @@ def map_tester():
     the_map = extend_and_add_trap_to_map([[' ' for i in range(10)] for j in range(10)])
     print '\n'.join('%d: %r' % (i, ''.join(l)) for i,l in enumerate(the_map))
 
-def generate_data():
+def generate_data(N):
     """ generate pairs of (map, homes) """
     print "using N=%s" % N
     # 5 fixed mazes
@@ -127,29 +130,55 @@ def single_run_alg(run_func, the_map, homes, number_of_active_ants=2):
         i+=1
     return None,None
 
-def make_random_map_homes_file():
-    print "making list of random maps and homes into %s" % MAPS_HOMES_PICKLE_FILENAME
-    pairs = list(generate_data())
-    with open(MAPS_HOMES_PICKLE_FILENAME, 'w+') as f:
+def map_filename(N):
+    return os.path.join(str(N), MAPS_HOMES_PICKLE_FILENAME)
+
+def make_random_map_homes_file(N):
+    filename = map_filename(N)
+    if os.path.exists(filename):
+        return filename
+    os.makedirs(str(N))
+    print "making list of random maps and homes into %s" % filename
+    pairs = list(generate_data(N))
+    with open(filename, 'w+') as f:
         cPickle.dump(pairs, f)
+    return filename
 
 def make_params(the_map, homes):
     # IMPORTANT NOTE: don't change this, it is the key to the results database
     return cPickle.dumps((the_map, homes))
 
+def results_filename(N):
+    return os.path.join(str(N), 'ant_results.sqlite3')
+
+def ctrl_c_handler(*args):
+    print "Ctrl-C caught, exiting"
+    sys.exit(1)
+
+signal.signal(signal.SIGINT, ctrl_c_handler)
+
 def main():
-    if not os.path.exists(MAPS_HOMES_PICKLE_FILENAME):
-        make_random_map_homes_file()
-    with open(MAPS_HOMES_PICKLE_FILENAME, 'r') as f:
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-N', type=int)
+    args = parser.parse_args(sys.argv[1:])
+    N = args.N
+    filename = make_random_map_homes_file(N)
+    print "loading map file %s" % filename
+    with open(filename, 'r') as f:
         map_home_pairs = cPickle.load(f)
-    con = sqlite3.connect('ant_results.sqlite3')
+    print "have to calculate %d pairs" % len(map_home_pairs)
+    dbfile = results_filename(N)
+    print "opening databsase %s" % dbfile
+    con = sqlite3.connect(dbfile)
     try:
+        print "creating new results table"
         con.execute('create table results (params, result)')
     except sqlite3.OperationalError:
         pass
     for i, (the_map, homes) in enumerate(map_home_pairs):
         params = make_params(the_map, homes)
         if con.execute('select count(*) from results where params=?', [params]).fetchall()[0][0] > 0:
+            print "%d/%d already calculated" % (i, len(map_home_pairs))
             continue
         print "calculating %d/%d" % (i, len(map_home_pairs))
         results = single_run(the_map, homes)
