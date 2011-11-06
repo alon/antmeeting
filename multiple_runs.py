@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from collections import namedtuple
 import AStar
 import run
 import maps
@@ -104,6 +105,8 @@ def single_run(the_map, homes):
 def single_run_alg_one_ant(run_func, the_map, homes):
     return single_run_alg(run_func, the_map, homes, number_of_active_ants=1)
 
+Results=namedtuple('Results', 'alg, steps, pheromones')
+
 def single_run_alg(run_func, the_map, homes, number_of_active_ants=2):
     s = Data()
     s.board_size = (len(the_map), len(the_map[0]))
@@ -124,7 +127,7 @@ def single_run_alg(run_func, the_map, homes, number_of_active_ants=2):
         done, num_of_pheromones = alg.single_step()
         if done:
             #s = '%s, %s, %s\n' % (shortest, i, num_of_pheromones)
-            return i, num_of_pheromones
+            return Results(alg=run_func.__name__, steps=i, pheromones=num_of_pheromones)
             #print "num of steps",i
             #print "num of pheromones", num_of_pheromones
         i+=1
@@ -157,11 +160,7 @@ def ctrl_c_handler(*args):
 
 signal.signal(signal.SIGINT, ctrl_c_handler)
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-N', type=int)
-    args = parser.parse_args(sys.argv[1:])
-    N = args.N
+def do_multiple(N):
     filename = make_random_map_homes_file(N)
     print "loading map file %s" % filename
     with open(filename, 'r') as f:
@@ -184,6 +183,32 @@ def main():
         results = single_run(the_map, homes)
         con.execute('insert into results values (?, ?)', [params, cPickle.dumps(results)])
         con.commit()
+
+def do_single(map_filename, homes):
+    the_map = maps.read_movingai(map_filename)
+    params = make_params(the_map, homes)
+    results = single_run(the_map, homes)
+    print results[1]._fields
+    print results[0], [tuple(r) for r in results[1:]]
+    return results
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-N', type=int)
+    parser.add_argument('--map')
+    parser.add_argument('--a1')
+    parser.add_argument('--a2')
+    args = parser.parse_args(sys.argv[1:])
+    if args.map:
+        if not args.a1 or not args.a2:
+            parser.print_usage()
+            sys.exit(1)
+        do_single(map_filename=args.map, homes=[map(int, x.split(',')) for x in [args.a1, args.a2]])
+    else:
+        if not args.N:
+            parser.print_usage()
+            sys.exit(2)
+        do_multiple(args.N)
     # create report
 
 if __name__ == '__main__':

@@ -5,6 +5,32 @@ import random
 import my_linecache as linecache
 import grid_generators
 
+def read_movingai(fname):
+    """
+    Maps from movingai.com
+    files with '.map' ending. Consist of a 4 line header, the rest is ascii
+    with @ and T as obstacles.
+    """
+    trans = dict(zip('.@T', ' **'))
+    lines = [''.join([trans.get(x, x) for x in l.strip()]) for l in linecache.getlines(fname)]
+    type_line, height_line, width_line, map_line = [x.strip() for x in lines[:4]]
+    type_word, type_type = type_line.split()
+    assert(type_word == 'type')
+    assert(type_type == 'octile')
+    height_word, height = height_line.split()
+    assert(height_word == 'height')
+    height = int(height)
+    assert(height > 0)
+    width_word, width = width_line.split()
+    assert(width_word == 'width')
+    width = int(width)
+    assert(width > 0)
+    assert(map_line == 'map')
+    assert(len(lines[4:]) == height)
+    rows = lines[4:]
+    assert(all(map(lambda x: len(x) == width, rows)))
+    return list(reversed(rows))
+
 def read_maze(fname):
     trans = dict(zip('.@', ' *'))
     lines = [''.join([trans.get(x, x) for x in l.strip()]) for l in linecache.getlines(fname)]
