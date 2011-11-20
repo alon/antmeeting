@@ -84,7 +84,7 @@ def generate_data(N):
             zmap, homes = maps.make_map_with_ants_on_vacancies(
                  default_homes=[(2,2), (3,7)], make_map=maze_gen, make_homes=maps.random_homes)
             a = astar(homes, zmap)
-            if a is None:
+            if a is None or a < 20:
                 continue  
             print "ASTAR: ", a
             xmap = extend_and_add_trap_to_map(zmap)
