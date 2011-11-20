@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # TODO: linecache is not in shedskin
 #import linecache
 
@@ -76,7 +77,15 @@ def random_homes_pair_gen(N, maze):
     )
 
 if __name__=='__main__':
-    import sys, os
-    m = read_maze('maze_002.map')
-    print ''.join(m[0])
-    print ''.join(m[-1])
+    import argparse
+    import sys
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--movingai')
+    parser.add_argument('--maze')
+    args = parser.parse_args(sys.argv[1:])
+    for reader, m in [(read_maze, args.maze), (read_movingai, args.movingai)]:
+        if not m:
+            continue
+        m = reader(m)
+        print ''.join(m[0])
+        print ''.join(m[-1])
