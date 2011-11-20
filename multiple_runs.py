@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 from collections import namedtuple
+from glob import glob
+import itertools
 import AStar
 import run
 import maps
@@ -65,29 +67,41 @@ def map_tester():
     the_map = extend_and_add_trap_to_map([[' ' for i in range(10)] for j in range(10)])
     print '\n'.join('%d: %r' % (i, ''.join(l)) for i,l in enumerate(the_map))
 
-def generate_data(N):
-    """ generate pairs of (map, homes) """
+def generate_data(N, number_of_runs=50):
+    """ generate pairs of (map, homes)
+    5 movingai maps, {original (closed), open}
+    5 fixed mazes, {closed,open}
+    5 {10,20,30}% map {closed,open}
+    """
     print "using N=%s" % N
-    # 5 fixed mazes
-    fixed_mazes = [lambda maze=maps.chunk(N, maps.read_maze('maze_%03d.map' % i)): maze for i in xrange(5)]
-    # 5 10% map, 5 20% map, 5 30% map
-    fixed_percent = sum(
-        [
+    movingai_closed = [lambda maze=maps.read_movingai(m): maze for m in glob('movingai/closed/*.map')]
+    movingai_open = [lambda maze=maps.read_movingai(m): maze for m in glob('movingai/open/*.map')]
+    fixed_mazes = [
+        lambda maze=maps.chunk(N, maps.read_maze('maze_%03d.map' % i)):
+            maze for i in xrange(5)]
+    fixed_percent = sum([
             [lambda: maps.grid_generators.grid_makers[0](size=(N,N), p_empty=p_empty)
                 for p_empty in [p]*5]
-         for p in [0.9, 0.8, 0.7]
+                 for p in [0.9, 0.8, 0.7]
         ],
         [])
-    for maze_gen in fixed_mazes + fixed_percent:
+    p = itertools.product
+    c = itertools.chain
+    for maze_gen, extend_map in c(
+            p(movingai_closed, [False]), p(movingai_open, [True]),
+            p(fixed_mazes + fixed_percent, [False, True])):
         map_count = 0
-        while map_count < 10:
+        while map_count < number_of_runs:
             zmap, homes = maps.make_map_with_ants_on_vacancies(
                  default_homes=[(2,2), (3,7)], make_map=maze_gen, make_homes=maps.random_homes)
             a = astar(homes, zmap)
             if a is None or a < 20:
                 continue  
             print "ASTAR: ", a
-            xmap = extend_and_add_trap_to_map(zmap)
+            if extend_map:
+                xmap = extend_and_add_trap_to_map(zmap)
+            else:
+                xmap = zmap
             yield xmap, homes
             map_count += 1
             #astar, ROA, ROA one ant, GOA, GOA one ant
