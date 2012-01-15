@@ -8,4 +8,10 @@ optional arguments:
   -h, --help  show this help message and exit
   -N N
 
-./multiple_runs
+For the Article
+===============
+
+#{ 5 Mazes, 5 Maps, 5 10%, 5 20%, 5 30% = 25 } X { Open | Closed } X { 50 Random starting points where d > 20 } X { ROA | GOA } X { 1 ant | 2 ants }
+
+# actual run
+./multiple_runs.py -N 256

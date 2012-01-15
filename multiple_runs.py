@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env pypy
 
 from collections import namedtuple
 from glob import glob
@@ -15,7 +15,7 @@ import signal
 
 MAPS_HOMES_PICKLE_FILENAME='maps_homes.pickle'
 #N=100 # limit screen size
-#MAX_STEPS=N*N*N    
+#MAX_STEPS=N*N*N
 #random_homes_pair = maps.random_homes_pair_gen(N,maze)
 #random_map_pair = maps.random_map_pair_gen(N,0.7)
 
@@ -62,20 +62,27 @@ def extend_and_add_trap_to_map(m):
     for i in range(len(m[0])):
         new_map[len(m) + 1][i] = ('*' if i != len(m[0])/2 else ' ')
     return new_map
-    
+
 def map_tester():
     the_map = extend_and_add_trap_to_map([[' ' for i in range(10)] for j in range(10)])
     print '\n'.join('%d: %r' % (i, ''.join(l)) for i,l in enumerate(the_map))
 
-def generate_data(N, number_of_runs=50):
+def generate_map_homes_data(N, number_of_runs=50):
     """ generate pairs of (map, homes)
     5 movingai maps, {original (closed), open}
     5 fixed mazes, {closed,open}
     5 {10,20,30}% map {closed,open}
     """
     print "using N=%s" % N
-    movingai_closed = [lambda maze=maps.read_movingai(m): maze for m in glob('movingai/closed/*.map')]
-    movingai_open = [lambda maze=maps.read_movingai(m): maze for m in glob('movingai/open/*.map')]
+    def iter_maps():
+        for i in xrange(5):
+            yield maps.read_maze('maze_%03d.map' % i)
+    for m in iter_maps():
+        rows = len(m)
+        max_col = max(len(x) for x in m)
+        if rows > N or max_col > N:
+            print "Warning: you are chunking your maze from (%d,%d) to %d" % (
+                    rows, max_col, N)
     fixed_mazes = [
         lambda maze=maps.chunk(N, maps.read_maze('maze_%03d.map' % i)):
             maze for i in xrange(5)]
@@ -85,6 +92,9 @@ def generate_data(N, number_of_runs=50):
                  for p in [0.9, 0.8, 0.7]
         ],
         [])
+    # movingai maps - not chunked. This is important.
+    movingai_closed = [lambda maze=maps.read_movingai(m): maze for m in glob('movingai/closed/*.map')]
+    movingai_open = [lambda maze=maps.read_movingai(m): maze for m in glob('movingai/open/*.map')]
     p = itertools.product
     c = itertools.chain
     for maze_gen, extend_map in c(
@@ -92,17 +102,19 @@ def generate_data(N, number_of_runs=50):
             p(fixed_mazes + fixed_percent, [False, True])):
         map_count = 0
         while map_count < number_of_runs:
+            thrown = 0
             zmap, homes = maps.make_map_with_ants_on_vacancies(
                  default_homes=[(2,2), (3,7)], make_map=maze_gen, make_homes=maps.random_homes)
             a = astar(homes, zmap)
             if a is None or a < 20:
-                continue  
-            print "ASTAR: ", a
+                thrown += 1
+                continue
+            print("ASTAR: %d (thrown %d)" % (a, thrown))
             if extend_map:
                 xmap = extend_and_add_trap_to_map(zmap)
             else:
                 xmap = zmap
-            yield xmap, homes
+            yield xmap, homes, {'closed': not extend_map}
             map_count += 1
             #astar, ROA, ROA one ant, GOA, GOA one ant
             #    time, num of pheromones
@@ -150,15 +162,15 @@ def single_run_alg(run_func, the_map, homes, number_of_active_ants=2):
 def map_filename(N):
     return os.path.join(str(N), MAPS_HOMES_PICKLE_FILENAME)
 
-def make_random_map_homes_file(N):
-    filename = map_filename(N)
+def make_map_homes_file(random_map_N):
+    filename = map_filename(random_map_N)
     if os.path.exists(filename):
         return filename
-    os.makedirs(str(N))
+    os.makedirs(str(random_map_N))
     print "making list of random maps and homes into %s" % filename
-    pairs = list(generate_data(N))
+    data = list(generate_map_homes_data(random_map_N))
     with open(filename, 'w+') as f:
-        cPickle.dump(pairs, f)
+        cPickle.dump(data, f)
     return filename
 
 def make_params(the_map, homes):
@@ -175,11 +187,14 @@ def ctrl_c_handler(*args):
 signal.signal(signal.SIGINT, ctrl_c_handler)
 
 def do_multiple(N):
-    filename = make_random_map_homes_file(N)
+    if not N:
+        print "TODO: pick up N from the size of the non random maps"
+        raise SystemExit
+    filename = make_map_homes_file(random_map_N=N)
     print "loading map file %s" % filename
     with open(filename, 'r') as f:
-        map_home_pairs = cPickle.load(f)
-    print "have to calculate %d pairs" % len(map_home_pairs)
+        map_home_data = cPickle.load(f)
+    print "have to calculate %d datum" % len(map_home_data)
     dbfile = results_filename(N)
     print "opening databsase %s" % dbfile
     con = sqlite3.connect(dbfile)
@@ -188,12 +203,12 @@ def do_multiple(N):
         con.execute('create table results (params, result)')
     except sqlite3.OperationalError:
         pass
-    for i, (the_map, homes) in enumerate(map_home_pairs):
+    for i, (the_map, homes, closed) in enumerate(map_home_data):
         params = make_params(the_map, homes)
         if con.execute('select count(*) from results where params=?', [params]).fetchall()[0][0] > 0:
-            print "%d/%d already calculated" % (i, len(map_home_pairs))
+            print "%d/%d already calculated" % (i, len(map_home_data))
             continue
-        print "calculating %d/%d" % (i, len(map_home_pairs))
+        print "calculating %d/%d" % (i, len(map_home_data))
         results = single_run(the_map, homes)
         con.execute('insert into results values (?, ?)', [params, cPickle.dumps(results)])
         con.commit()
@@ -208,7 +223,7 @@ def do_single(map_filename, homes):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-N', type=int)
+    parser.add_argument('-N', type=int, default = 256)
     parser.add_argument('--map')
     parser.add_argument('--a1')
     parser.add_argument('--a2')
@@ -219,9 +234,6 @@ def main():
             sys.exit(1)
         do_single(map_filename=args.map, homes=[map(int, x.split(',')) for x in [args.a1, args.a2]])
     else:
-        if not args.N:
-            parser.print_usage()
-            sys.exit(2)
         do_multiple(args.N)
     # create report
 

@@ -47,7 +47,7 @@ def make_map_with_ants_on_vacancies(default_homes, make_map, make_homes):
     size = (len(zmap), len(zmap[0]))
     homes = make_homes(defaults=default_homes, size=size)
     while any([zmap[x][y] == '*' for x, y in homes]) or homes[0] == homes[1]:
-        print "."
+        #print "."
         zmap = make_map()
         homes = make_homes(defaults=default_homes, size=size)
     return zmap, homes

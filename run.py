@@ -12,7 +12,7 @@ class Run(object):
 
     def make_grid(self, board_size):
         raise NotImplemented
-    
+
     # End Abstracts
 
     def __init__(self, board_size, ant_locations, number_of_active_ants,
@@ -144,7 +144,7 @@ class COARun(ObstacleRun):
     def make_grid(self, board_size):
         return MustMeet.make_grid(list(board_size))
 
-        
+# Main
 if False:
     the_map = [[0]*n for i in xrange(10)]
     homes=[(2,2), (3,7)],
