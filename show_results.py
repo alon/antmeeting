@@ -6,6 +6,8 @@ import csv
 import sys
 import argparse
 
+from multiple_runs import Results
+
 def c_or_num(x, y, c, homes):
     for ant_i, (ant_x, ant_y) in enumerate(homes):
         if ant_x == x and ant_y == y:
@@ -49,6 +51,6 @@ def get_unfinished(N):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-N', type=int)
+    parser.add_argument('-N', type=int, default=256)
     args = parser.parse_args(sys.argv[1:])
     show_all_results(args.N)
